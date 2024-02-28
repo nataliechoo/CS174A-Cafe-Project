@@ -1,4 +1,5 @@
 import {defs, tiny} from './examples/common.js';
+import {Shape_From_File} from "./examples/obj-file-demo.js"; //Will prob need this for creating characters
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -23,7 +24,9 @@ export class Assignment3 extends Scene {
             // planet_4: new defs.Subdivision_Sphere(4),
             // moon: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
             // ring: new defs.Torus(50, 50),
-
+            // TODO: NEW OBJECTS!! TESTING MIFFY
+            miffy: new Shape_From_File("./assets/smaller3ObjectsMiffy.obj"),
+            cup: new Shape_From_File("./assets/cafeCup.obj"),
         };
 
         // *** Materials
@@ -32,30 +35,25 @@ export class Assignment3 extends Scene {
                 {ambient: .4, diffusivity: .6, color: hex_color("#ffffff")}),
             test2: new Material(new Gouraud_Shader(),
                 {ambient: .4, diffusivity: .6, color: hex_color("#992828")}),
-            //ring: new Material(new Ring_Shader()),
-            // TODO:  CREATE MATERIALS FOR THE DRINKS, BARISTA, SETTING, ETC (see below examples)
-            cat: new Material(new defs.Phong_Shader(),
-                 {ambient: 1, diffusivity: 1, color: hex_color("#ffffff")}),
-            // planet_1: new Material(new defs.Phong_Shader(),
-            //     {ambient: 0, diffusivity: 1, color: hex_color("#808080"), specularity: 0}),
-            // planet2_gouraud: new Material(new Gouraud_Shader(),
-            //     {ambient: 0, diffusivity: .2, color: hex_color("#80FFFF"), specularity: 1}),
-            // planet2_phong: new Material(new defs.Phong_Shader(),
-            //     {ambient: 0, diffusivity: .2, color: hex_color("#80FFFF"), specularity: 1}),
-            // planet3: new Material(new defs.Phong_Shader(),
-            //     {ambient: 0, diffusivity: 1, color: hex_color("#B08040"), specularity: 1}),
-            // planet4: new Material(new defs.Phong_Shader(),
-            //     {ambient: 0, color: hex_color("#1221C9"), specularity: 1}),
-            // moon: new Material(new defs.Phong_Shader(),
-            //     {ambient: 0, diffusivity: .7, color: hex_color("#FF2BE9"), specularity: 1}),
-            // ring: new Material(new Ring_Shader(),
-            //     {ambient: 1, diffusivity: 0, color: hex_color("#B08040"), specularity: 0, smoothness: 0}),
+
+            // CAFE OBJECTS
+            miffy: new Material(new defs.Phong_Shader(), {
+                ambient: 0.9,
+                diffusivity: 0.1,
+                color: hex_color("#FFFFFF")
+            }),
+            cup: new Material(new defs.Phong_Shader(), {
+                ambient: 0.9,
+                diffusivity: 0.1,
+                color: hex_color("#FFFFFF")
+            }),
         }
-        this.initial_camera_location = Mat4.look_at( vec3( 0,10,20 ), vec3( 0,0,0 ), vec3( 0,1,0 ));
+        //setup initial POV
+        this.initial_camera_location = Mat4.look_at(vec3( 0,1,7 ), vec3( 0,.7,0 ), vec3( 0,1,0 ));
     }
 
     make_control_panel() {
-        // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
+        //HAVE NOT YET SET UP PERSPECTIVE CHANGES
         this.key_triggered_button("View solar system", ["Control", "0"], () => this.attached = () => this.initial_camera_location);
         this.new_line();
         this.key_triggered_button("Attach to planet 1", ["Control", "1"], () => this.attached = () => this.planet_1);
@@ -67,13 +65,31 @@ export class Assignment3 extends Scene {
         this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
     }
 
-    display_barista(context, program_state, model_transform, baristaSelection){
-        //TODO: display chosen barista
-        //this.shapes.cat.draw(context, program_state, model_transform, this.materials.cat);
+    //draw selected object chosen by objKey, customize the lighting and the coloring of the object before drawing it
+    display_obj(context, program_state, model_transform, objKey){
+        // basic parameters
+        let obj_color = color(1,1,1,1);
+        let obj_light_atten = 100;
+        let obj_light_pos = vec4(0,0,0,1);
+
+        //change light and color settings based on the object to display
+        if (objKey === "cup")
+        {
+            obj_color = hex_color("#9C9187");
+            obj_light_atten = 1;
+        }
+
+        //do lighting
+        program_state.lights = [new Light(obj_light_pos, obj_color, obj_light_atten)];
+
+        //draw object
+        this.shapes[objKey].draw(context, program_state, model_transform, this.materials[objKey].override(({color:obj_color})));
+
+        program_state.projection_transform = Mat4.perspective(
+            Math.PI / 4, context.width / context.height, .1, 1000);
     }
 
     display(context, program_state) {
-        //super.display(context, program_state);
 
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
         if (!context.scratchpad.controls) {
@@ -82,23 +98,13 @@ export class Assignment3 extends Scene {
             program_state.set_camera(this.initial_camera_location);
         }
 
-        program_state.projection_transform = Mat4.perspective(
-            Math.PI / 4, context.width / context.height, .1, 1000);
-
-        let t = program_state.animation_time / 1000;
+        //Draw Miffy
         let model_transform = Mat4.identity();
+        this.display_obj(context, program_state, model_transform, "miffy");
 
-        const catSize = 2;
-        let cat_transform = model_transform;
-        cat_transform = cat_transform.times(Mat4.scale(catSize, catSize, catSize));
-
-        const cat_light_pos = vec4(0, 0, 0, 1); // Sun's position in world space.
-        const cat_color = color(1, 1, 1, 1);
-        const cat_light_atten = 10 ** catSize;
-
-        program_state.lights = [new Light(cat_light_pos, cat_color, cat_light_atten)];
-
-        this.shapes.cat.draw(context, program_state, cat_transform, this.materials.cat.override(({color:cat_color})));
+        //Draw Cup
+        model_transform = model_transform.times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(3,0,2));
+        this.display_obj(context, program_state, model_transform, "cup");
 
         if (this.attached !== undefined) {
             program_state.camera_inverse = this.attached().map((x,i) => Vector.from(program_state.camera_inverse[i]).mix(x, 0.1));
