@@ -14,19 +14,15 @@ export class Assignment3 extends Scene {
         this.shapes = {
             torus: new defs.Torus(15, 15),
             torus2: new defs.Torus(3, 15),
-            sphere: new defs.Subdivision_Sphere(4),
             circle: new defs.Regular_2D_Polygon(1, 15),
             // TODO:  CREATE SHAPES FOR THE OBJECTS (see examples from assignment 3 below)
-            cat: new defs.Subdivision_Sphere(4),
-            // planet_1: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(2),
-            // planet_2: new defs.Subdivision_Sphere(3),
-            // planet_3: new defs.Subdivision_Sphere(4),
-            // planet_4: new defs.Subdivision_Sphere(4),
-            // moon: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
-            // ring: new defs.Torus(50, 50),
+
             // TODO: NEW OBJECTS!! TESTING MIFFY
             miffy: new Shape_From_File("./assets/smaller3ObjectsMiffy.obj"),
             cup: new Shape_From_File("./assets/cafeCup.obj"),
+            cafe: new Shape_From_File("./assets/cafeSetting.obj"),
+            star: new Shape_From_File("./assets/star.obj"),
+            sky: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(4),
         };
 
         // *** Materials
@@ -38,18 +34,34 @@ export class Assignment3 extends Scene {
 
             // CAFE OBJECTS
             miffy: new Material(new defs.Phong_Shader(), {
-                ambient: 0.9,
-                diffusivity: 0.1,
+                ambient: 0.67,
+                diffusivity: 0.11,
                 color: hex_color("#FFFFFF")
             }),
             cup: new Material(new defs.Phong_Shader(), {
                 ambient: 0.9,
                 diffusivity: 0.1,
-                color: hex_color("#FFFFFF")
+                color: hex_color("#9C9187")
+            }),
+            cafe: new Material(new defs.Phong_Shader(), {
+                ambient: 0.5,
+                diffusivity: 1,
+                color: hex_color("#898aa3")
+            }),
+            star: new Material(new defs.Phong_Shader(), {
+                ambient: 0.9,
+                diffusivity: 0.001, //this is shiny, use 0.1 for smooth clay look
+                color: hex_color("#FBF2C0")
+            }),
+            sky: new Material(new defs.Phong_Shader(), {
+                ambient: 0.9,
+                diffusivity: 0.1,
+                specularity: 0,
+                color: hex_color("#2E2F2F"),
             }),
         }
         //setup initial POV
-        this.initial_camera_location = Mat4.look_at(vec3( 0,1,7 ), vec3( 0,.7,0 ), vec3( 0,1,0 ));
+        this.initial_camera_location = Mat4.look_at(vec3( 12, 0.25, 15 ), vec3( 0,1,0 ), vec3( 0,6,0 ));
     }
 
     make_control_panel() {
@@ -68,20 +80,15 @@ export class Assignment3 extends Scene {
     //draw selected object chosen by objKey, customize the lighting and the coloring of the object before drawing it
     display_obj(context, program_state, model_transform, objKey){
         // basic parameters
-        let obj_color = color(1,1,1,1);
-        let obj_light_atten = 100;
-        let obj_light_pos = vec4(0,0,0,1);
+        let obj_color = this.materials[objKey].color;
 
         //change light and color settings based on the object to display
-        if (objKey === "cup")
+        if (objKey === "star")
         {
-            obj_color = hex_color("#9C9187");
-            obj_light_atten = 1;
+            let obj_light_atten = 10000000000000000000000;
+            let obj_light_pos = vec4(20,20,30,1);
+            //program_state.lights = [new Light(obj_light_pos, obj_color, obj_light_atten)];
         }
-
-        //do lighting
-        program_state.lights = [new Light(obj_light_pos, obj_color, obj_light_atten)];
-
         //draw object
         this.shapes[objKey].draw(context, program_state, model_transform, this.materials[objKey].override(({color:obj_color})));
 
@@ -97,14 +104,56 @@ export class Assignment3 extends Scene {
             // Define the global camera and projection matrices, which are stored in program_state.
             program_state.set_camera(this.initial_camera_location);
         }
+        //set up basic overhead light
+        program_state.lights = [new Light(vec4(50,600,250,1), hex_color("#f3d9fc"), 65000000)];
+        //#55eb34 stronger green
+        //d1ffc7 pale green light (basically white light)
+        //a7ff94 barely there green light
+        //f3d9fc lilac
+
+        let model_transform = Mat4.identity();
+
+        //Draw Background
+        let background_transform = model_transform;
+        background_transform = background_transform
+            .times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,0.7,0)).times(Mat4.scale(7,7,7));
+        this.display_obj(context, program_state, background_transform, "cafe");
+
+        //Draw Night Sky
+        let sky_placement = model_transform;
+        sky_placement = sky_placement.times(Mat4.translation(80,0, -200)).times(Mat4.scale(300,300,300));
+        this.display_obj(context, program_state, sky_placement, "sky");
 
         //Draw Miffy
-        let model_transform = Mat4.identity();
-        this.display_obj(context, program_state, model_transform, "miffy");
+        let miffy_transform = model_transform;
+        miffy_transform = miffy_transform
+             .times(Mat4.rotation(0.3, 0, 1,0))
+             .times(Mat4.scale(1.5,1.5,1.5))
+             .times(Mat4.translation(2.2,0.7,-1.5));
+        this.display_obj(context, program_state, miffy_transform, "miffy");
+
+        // //Draw Background
+        // let background_transform = model_transform;
+        // background_transform = background_transform
+        //     .times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,0.7,0)).times(Mat4.scale(7,7,7));
+        // this.display_obj(context, program_state, background_transform, "cafe");
 
         //Draw Cup
-        model_transform = model_transform.times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(3,0,2));
-        this.display_obj(context, program_state, model_transform, "cup");
+        let cup_transform = model_transform;
+        cup_transform = cup_transform.times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(-2, -0.33, 3));
+        this.display_obj(context, program_state, cup_transform, "cup");
+
+        //Rotating Star
+        let t = program_state.animation_time / 1000;
+
+        let star_transform = model_transform;
+        let star_size = Math.max(0.6, 0.8*Math.abs(Math.cos(t/3)));
+        let star_pos = star_transform.times(Mat4.translation(1.5,2.2,2)).times(Mat4.scale(star_size, star_size, star_size));
+        var star_rotation = 5 * Math.sin((1.3*t));
+        var star_height = Math.abs(Math.sin(t));
+
+        star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
+        this.display_obj(context, program_state, star_transform, "star");
 
         if (this.attached !== undefined) {
             program_state.camera_inverse = this.attached().map((x,i) => Vector.from(program_state.camera_inverse[i]).mix(x, 0.1));
