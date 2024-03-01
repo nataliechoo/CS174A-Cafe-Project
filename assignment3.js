@@ -2,7 +2,7 @@ import {defs, tiny} from './examples/common.js';
 import {Shape_From_File} from "./examples/obj-file-demo.js"; //Will prob need this for creating characters
 
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture
 } = tiny;
 
 export class Assignment3 extends Scene {
@@ -18,7 +18,8 @@ export class Assignment3 extends Scene {
             // TODO:  CREATE SHAPES FOR THE OBJECTS (see examples from assignment 3 below)
 
             // TODO: NEW OBJECTS!! TESTING MIFFY
-            miffy: new Shape_From_File("./assets/smaller3ObjectsMiffy.obj"),
+            miffy: new Shape_From_File("./assets/smaller3ObjectsMiffyMinusEyes.obj"),
+            miffyEyes: new Shape_From_File("./assets/smaller3ObjectsMiffyEyes.obj"),
             cup: new Shape_From_File("./assets/cafeCup.obj"),
             cafe: new Shape_From_File("./assets/cafeSetting.obj"),
             star: new Shape_From_File("./assets/star.obj"),
@@ -27,15 +28,11 @@ export class Assignment3 extends Scene {
 
         // *** Materials
         this.materials = {
-            test: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: hex_color("#ffffff")}),
-            test2: new Material(new Gouraud_Shader(),
-                {ambient: .4, diffusivity: .6, color: hex_color("#992828")}),
-
             // CAFE OBJECTS
             miffy: new Material(new defs.Phong_Shader(), {
                 ambient: 0.67,
-                diffusivity: 0.11,
+                diffusivity: 0.5,
+                specularity: 0.05,  // lower spec = more matte, higher = more glassy
                 color: hex_color("#FFFFFF")
             }),
             cup: new Material(new defs.Phong_Shader(), {
@@ -44,13 +41,16 @@ export class Assignment3 extends Scene {
                 color: hex_color("#9C9187")
             }),
             cafe: new Material(new defs.Phong_Shader(), {
-                ambient: 0.5,
+                ambient: 0.6,
                 diffusivity: 1,
-                color: hex_color("#898aa3")
+                color: hex_color("#898aa3"),
+                specularity: 0.1,
+                //texture: new Texture("./assets/Textures/woolTexture.png")
             }),
-            star: new Material(new defs.Phong_Shader(), {
+            star: new Material(new Gouraud_Shader(100), {
                 ambient: 0.9,
                 diffusivity: 0.001, //this is shiny, use 0.1 for smooth clay look
+                specularity: 50,
                 color: hex_color("#FBF2C0")
             }),
             sky: new Material(new defs.Phong_Shader(), {
@@ -59,9 +59,22 @@ export class Assignment3 extends Scene {
                 specularity: 0,
                 color: hex_color("#2E2F2F"),
             }),
+            miffyEyes: new Material(new defs.Phong_Shader(), {
+                ambient: 0.67,
+                diffusivity: 0.11,
+                color: hex_color("#000000")
+            }),
+
         }
         //setup initial POV
         this.initial_camera_location = Mat4.look_at(vec3( 12, 0.25, 15 ), vec3( 0,1,0 ), vec3( 0,6,0 ));
+
+        //set up static background stars
+        this.starPositionsInitialized = false;
+        this.starPositionsBack = [];
+        this.starPositionsFront = [];
+        this.starPositionsLeft = [];
+        this.starPositionsRight = [];
     }
 
     make_control_panel() {
@@ -87,13 +100,90 @@ export class Assignment3 extends Scene {
         {
             let obj_light_atten = 10000000000000000000000;
             let obj_light_pos = vec4(20,20,30,1);
-            //program_state.lights = [new Light(obj_light_pos, obj_color, obj_light_atten)];
         }
         //draw object
-        this.shapes[objKey].draw(context, program_state, model_transform, this.materials[objKey].override(({color:obj_color})));
+        this.shapes[objKey].draw(context, program_state, model_transform, this.materials[objKey]);
 
         program_state.projection_transform = Mat4.perspective(
             Math.PI / 4, context.width / context.height, .1, 1000);
+    }
+
+    drawStars(context, program_state, star_pos) {
+        // Create an array for star positions
+        if (!this.starPositionsInitialized) {
+            this.starPositionsBack = new Array(60).fill(null);
+            this.starPositionsFront = new Array(30).fill(null);
+            this.starPositionsLeft = new Array(60).fill(null);
+            this.starPositionsRight= new Array(60).fill(null);
+
+            for (let i = 0; i < this.starPositionsBack.length; i++) {
+                const minCeiledY = 100;
+                const maxFlooredY = -200;
+                const minCeiled = -300;
+                const maxFloored = 20;
+                let randomX = Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+                let randomY = Math.floor(Math.random() * (maxFlooredY - minCeiledY) + minCeiledY) + 100;
+                let randomZ = Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+
+                // Create a transformation matrix for the current star
+                this.starPositionsBack[i] = star_pos.times(Mat4.translation(randomX, randomY, randomZ));
+            }
+
+            for (let i = 0; i < this.starPositionsFront.length; i++) {
+                const minCeiledYF = 100;
+                const maxFlooredYF = -200;
+                const minCeiledF = 200;
+                const maxFlooredF = 20;
+                let randomXF = Math.floor(Math.random() * (maxFlooredF - minCeiledF -150) + minCeiledF+150);
+                let randomYF = Math.floor(Math.random() * (maxFlooredYF - minCeiledYF) + minCeiledYF);
+                let randomZF = Math.floor(Math.random() * (maxFlooredF - minCeiledF) + minCeiledF);
+
+                // Create a transformation matrix for the current star
+                this.starPositionsFront[i] = star_pos.times(Mat4.translation(randomXF, randomYF, randomZF));
+            }
+
+            for (let i = 0; i < this.starPositionsLeft.length; i++) {
+                const minCeiledYL = 100;
+                const maxFlooredYL = -200;
+                const minCeiledL = 200;
+                const maxFlooredL = 20;
+                let randomXL = Math.floor(Math.random() * (maxFlooredYL - minCeiledYL) + minCeiledYL);
+                let randomYL = Math.floor(Math.random() * (maxFlooredYL - minCeiledYL - 20) + minCeiledYL);
+                let randomZL = Math.floor(Math.random() * (maxFlooredL - minCeiledL-40) + minCeiledL+40);
+
+                // Create a transformation matrix for the current star
+                this.starPositionsLeft[i] = star_pos.times(Mat4.translation(randomXL, randomYL, randomZL));
+            }
+
+            for (let i = 0; i < this.starPositionsRight.length; i++) {
+                const minCeiledYR = 200;
+                const maxFlooredYR = -100;
+                const minCeiledR = -300;
+                const maxFlooredR = -20;
+                let randomXR = Math.floor(Math.random() * (maxFlooredYR - minCeiledYR) + minCeiledYR);
+                let randomYR = Math.floor(Math.random() * (maxFlooredYR - minCeiledYR - 20) + minCeiledYR);
+                let randomZR = Math.floor(Math.random() * (maxFlooredR - minCeiledR +60) + minCeiledR-60);
+
+                // Create a transformation matrix for the current star
+                this.starPositionsRight[i] = star_pos.times(Mat4.translation(randomXR, randomYR, randomZR));
+            }
+
+            this.starPositionsInitialized = true;
+        }
+        else {
+            this.starPositionsBack.forEach(transform => {
+                this.display_obj(context, program_state, transform, "star");
+            });
+            this.starPositionsFront.forEach(transform => {
+                this.display_obj(context, program_state, transform, "star");
+            });
+            this.starPositionsLeft.forEach(transform => {
+                this.display_obj(context, program_state, transform, "star");
+            });
+            this.starPositionsRight.forEach(transform => {
+                this.display_obj(context, program_state, transform, "star");
+            });
+        }
     }
 
     display(context, program_state) {
@@ -104,6 +194,7 @@ export class Assignment3 extends Scene {
             // Define the global camera and projection matrices, which are stored in program_state.
             program_state.set_camera(this.initial_camera_location);
         }
+
         //set up basic overhead light
         program_state.lights = [new Light(vec4(50,600,250,1), hex_color("#f3d9fc"), 65000000)];
         //#55eb34 stronger green
@@ -121,7 +212,7 @@ export class Assignment3 extends Scene {
 
         //Draw Night Sky
         let sky_placement = model_transform;
-        sky_placement = sky_placement.times(Mat4.translation(80,0, -200)).times(Mat4.scale(300,300,300));
+        sky_placement = sky_placement.times(Mat4.translation(80,0, -200)).times(Mat4.scale(400,400,400));
         this.display_obj(context, program_state, sky_placement, "sky");
 
         //Draw Miffy
@@ -131,19 +222,14 @@ export class Assignment3 extends Scene {
              .times(Mat4.scale(1.5,1.5,1.5))
              .times(Mat4.translation(2.2,0.7,-1.5));
         this.display_obj(context, program_state, miffy_transform, "miffy");
-
-        // //Draw Background
-        // let background_transform = model_transform;
-        // background_transform = background_transform
-        //     .times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,0.7,0)).times(Mat4.scale(7,7,7));
-        // this.display_obj(context, program_state, background_transform, "cafe");
+        this.display_obj(context, program_state, miffy_transform, "miffyEyes");
 
         //Draw Cup
         let cup_transform = model_transform;
         cup_transform = cup_transform.times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(-2, -0.33, 3));
         this.display_obj(context, program_state, cup_transform, "cup");
 
-        //Rotating Star
+        // Draw Rotating Star
         let t = program_state.animation_time / 1000;
 
         let star_transform = model_transform;
@@ -154,6 +240,9 @@ export class Assignment3 extends Scene {
 
         star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
         this.display_obj(context, program_state, star_transform, "star");
+
+        //Draw Background Stars
+        this.drawStars(context, program_state, star_pos);
 
         if (this.attached !== undefined) {
             program_state.camera_inverse = this.attached().map((x,i) => Vector.from(program_state.camera_inverse[i]).mix(x, 0.1));
