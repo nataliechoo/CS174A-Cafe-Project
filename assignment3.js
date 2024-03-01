@@ -23,6 +23,9 @@ export class Assignment3 extends Scene {
             cup: new Shape_From_File("./assets/cafeCup.obj"),
             cafe: new Shape_From_File("./assets/cafeSetting.obj"),
             star: new Shape_From_File("./assets/star.obj"),
+            moon: new Shape_From_File("./assets/tableMoon.obj"),
+            cloudCounter: new Shape_From_File("./assets/cloudCounter.obj"),
+            wallsAndFloor: new Shape_From_File("./assets/wallsAndFloor.obj"),
             sky: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(4),
         };
 
@@ -57,6 +60,25 @@ export class Assignment3 extends Scene {
                 diffusivity: 0.001, //this is shiny, use 0.1 for smooth clay look
                 specularity: 50,
                 color: hex_color("#FBF2C0")
+            }),
+            moon: new Material(new Gouraud_Shader(100), {
+                ambient: 0.9,
+                diffusivity: 0.001, //this is shiny, use 0.1 for smooth clay look
+                specularity: 50,
+                color: hex_color("#FFE066")
+            }),
+            cloudCounter: new Material(new Gouraud_Shader(100), {
+                ambient: 0.9,
+                diffusivity: 0.001, //this is shiny, use 0.1 for smooth clay look
+                specularity: 50,
+                color: hex_color("#EAEAEA")
+            }),
+            wallsAndFloor: new Material(new defs.Phong_Shader(), {
+                ambient: 0.6,
+                diffusivity: 1,
+                color: hex_color("#898aa3"),
+                specularity: 0.1,
+                //texture: new Texture("./assets/Textures/woolTexture.png")
             }),
             sky: new Material(new defs.Phong_Shader(), {
                 ambient: 0.9,
@@ -206,9 +228,19 @@ export class Assignment3 extends Scene {
 
         //Draw Background
         let background_transform = model_transform;
-        background_transform = background_transform
-            .times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,0.7,0)).times(Mat4.scale(7,7,7));
-        this.display_obj(context, program_state, background_transform, "cafe");
+        let moon_transform = model_transform;
+        let cloudCounter_transform = model_transform;
+        let wallsAndFloor_transform = model_transform;
+
+        background_transform = background_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,0.7,0)).times(Mat4.scale(7,7,7));
+        moon_transform = moon_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(2.8,1,-2.5)).times(Mat4.scale(2.9,2.9,2.9));
+        cloudCounter_transform = cloudCounter_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,-0.5,-2)).times(Mat4.scale(2.5,2.5,2.5));
+        wallsAndFloor_transform = wallsAndFloor_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(-3,1.8,5)).times(Mat4.scale(12.5,12.5,12.5));
+
+        //this.display_obj(context, program_state, background_transform, "cafe");
+        this.display_obj(context, program_state, moon_transform, "moon");
+        this.display_obj(context, program_state, cloudCounter_transform, "cloudCounter");
+        this.display_obj(context, program_state, wallsAndFloor_transform, "wallsAndFloor");
 
         //Draw Night Sky
         let sky_placement = model_transform;
@@ -220,7 +252,7 @@ export class Assignment3 extends Scene {
         miffy_transform = miffy_transform
             .times(Mat4.rotation(0.3, 0, 1,0))
             .times(Mat4.scale(1.5,1.5,1.5))
-            .times(Mat4.translation(2.2,0.7,-1.5));
+            .times(Mat4.translation(2.2,0.5,-1.5));
         this.display_obj(context, program_state, miffy_transform, "miffy");
         this.display_obj(context, program_state, miffy_transform, "miffyEyes");
 
