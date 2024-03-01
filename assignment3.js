@@ -45,9 +45,9 @@ export class Assignment3 extends Scene {
                 color: hex_color("#2E2F2F")
             }),
             cup: new Material(new defs.Phong_Shader(), {
-                ambient: 0.9,
+                ambient: 1,
                 diffusivity: 0.1,
-                color: hex_color("#9C9187")
+                color: hex_color("#bfb891")
             }),
             cafe: new Material(new defs.Phong_Shader(), {
                 ambient: 0.6,
@@ -271,7 +271,7 @@ export class Assignment3 extends Scene {
 
         //Draw Cup
         let cup_transform = model_transform;
-        cup_transform = cup_transform.times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(-2, -0.33, 3));
+        cup_transform = cup_transform.times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(7, 0, -3));
         this.display_obj(context, program_state, cup_transform, "cup");
 
         // Draw Rotating Star
