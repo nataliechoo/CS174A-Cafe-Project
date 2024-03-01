@@ -35,6 +35,11 @@ export class Assignment3 extends Scene {
                 specularity: 0.05,  // lower spec = more matte, higher = more glassy
                 color: hex_color("#FFFFFF")
             }),
+            miffyEyes: new Material(new defs.Phong_Shader(), {
+                ambient: 0.67,
+                diffusivity: 0.11,
+                color: hex_color("#000000")
+            }),
             cup: new Material(new defs.Phong_Shader(), {
                 ambient: 0.9,
                 diffusivity: 0.1,
@@ -58,11 +63,6 @@ export class Assignment3 extends Scene {
                 diffusivity: 0.1,
                 specularity: 0,
                 color: hex_color("#2E2F2F"),
-            }),
-            miffyEyes: new Material(new defs.Phong_Shader(), {
-                ambient: 0.67,
-                diffusivity: 0.11,
-                color: hex_color("#000000")
             }),
 
         }
@@ -218,9 +218,9 @@ export class Assignment3 extends Scene {
         //Draw Miffy
         let miffy_transform = model_transform;
         miffy_transform = miffy_transform
-             .times(Mat4.rotation(0.3, 0, 1,0))
-             .times(Mat4.scale(1.5,1.5,1.5))
-             .times(Mat4.translation(2.2,0.7,-1.5));
+            .times(Mat4.rotation(0.3, 0, 1,0))
+            .times(Mat4.scale(1.5,1.5,1.5))
+            .times(Mat4.translation(2.2,0.7,-1.5));
         this.display_obj(context, program_state, miffy_transform, "miffy");
         this.display_obj(context, program_state, miffy_transform, "miffyEyes");
 
@@ -445,4 +445,3 @@ class Ring_Shader extends Shader {
         }`;
     }
 }
-
