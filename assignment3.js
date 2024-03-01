@@ -18,7 +18,8 @@ export class Assignment3 extends Scene {
             // TODO:  CREATE SHAPES FOR THE OBJECTS (see examples from assignment 3 below)
 
             // TODO: NEW OBJECTS!! TESTING MIFFY
-            miffy: new Shape_From_File("./assets/smaller3ObjectsMiffy.obj"),
+            miffy: new Shape_From_File("./assets/smaller3ObjectsMiffyMinusEyes.obj"),
+            miffyEyes: new Shape_From_File("./assets/smaller3ObjectsMiffyEyes.obj"),
             cup: new Shape_From_File("./assets/cafeCup.obj"),
             cafe: new Shape_From_File("./assets/cafeSetting.obj"),
             star: new Shape_From_File("./assets/star.obj"),
@@ -37,6 +38,11 @@ export class Assignment3 extends Scene {
                 ambient: 0.67,
                 diffusivity: 0.11,
                 color: hex_color("#FFFFFF")
+            }),
+            miffyEyes: new Material(new defs.Phong_Shader(), {
+                ambient: 0.67,
+                diffusivity: 0.11,
+                color: hex_color("#000000")
             }),
             cup: new Material(new defs.Phong_Shader(), {
                 ambient: 0.9,
@@ -127,10 +133,11 @@ export class Assignment3 extends Scene {
         //Draw Miffy
         let miffy_transform = model_transform;
         miffy_transform = miffy_transform
-             .times(Mat4.rotation(0.3, 0, 1,0))
-             .times(Mat4.scale(1.5,1.5,1.5))
-             .times(Mat4.translation(2.2,0.7,-1.5));
+            .times(Mat4.rotation(0.3, 0, 1,0))
+            .times(Mat4.scale(1.5,1.5,1.5))
+            .times(Mat4.translation(2.2,0.7,-1.5));
         this.display_obj(context, program_state, miffy_transform, "miffy");
+        this.display_obj(context, program_state, miffy_transform, "miffyEyes");
 
         // //Draw Background
         // let background_transform = model_transform;
@@ -356,4 +363,3 @@ class Ring_Shader extends Shader {
         }`;
     }
 }
-
