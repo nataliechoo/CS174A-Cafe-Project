@@ -19,7 +19,7 @@ export class Assignment3 extends Scene {
 
             // TODO: NEW OBJECTS!! TESTING MIFFY
             miffy: new Shape_From_File("./assets/smaller3ObjectsMiffyMinusEyes.obj"),
-            miffyEyes: new Shape_From_File("./assets/smaller3ObjectsMiffyEyes.obj"),
+            miffyFace: new Shape_From_File("./assets/miffyEyesAndMouth.obj"),
             cup: new Shape_From_File("./assets/cafeCup.obj"),
             cafe: new Shape_From_File("./assets/cafeSetting.obj"),
             star: new Shape_From_File("./assets/star.obj"),
@@ -38,10 +38,10 @@ export class Assignment3 extends Scene {
                 specularity: 0.05,  // lower spec = more matte, higher = more glassy
                 color: hex_color("#FFFFFF")
             }),
-            miffyEyes: new Material(new defs.Phong_Shader(), {
+            miffyFace: new Material(new defs.Phong_Shader(), {
                 ambient: 0.67,
                 diffusivity: 0.11,
-                color: hex_color("#000000")
+                color: hex_color("#2E2F2F")
             }),
             cup: new Material(new defs.Phong_Shader(), {
                 ambient: 0.9,
@@ -237,7 +237,6 @@ export class Assignment3 extends Scene {
         cloudCounter_transform = cloudCounter_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,-0.5,-2)).times(Mat4.scale(2.5,2.5,2.5));
         wallsAndFloor_transform = wallsAndFloor_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(-3,1.8,5)).times(Mat4.scale(12.5,12.5,12.5));
 
-        //this.display_obj(context, program_state, background_transform, "cafe");
         this.display_obj(context, program_state, moon_transform, "moon");
         this.display_obj(context, program_state, cloudCounter_transform, "cloudCounter");
         this.display_obj(context, program_state, wallsAndFloor_transform, "wallsAndFloor");
@@ -253,8 +252,15 @@ export class Assignment3 extends Scene {
             .times(Mat4.rotation(0.3, 0, 1,0))
             .times(Mat4.scale(1.5,1.5,1.5))
             .times(Mat4.translation(2.2,0.5,-1.5));
+        let miffy_face_transform = model_transform;
+        let miffy_face_pos = model_transform;
+        miffy_face_pos = model_transform.times(Mat4.translation(2.5, 3, -2.5));
+        miffy_face_transform = miffy_face_pos
+            .times(Mat4.rotation(0.3, 0, 1,0))
+            .times(Mat4.scale(.4,.4,.4))
+            .times(Mat4.translation(0.19,-4.68,1.1));
         this.display_obj(context, program_state, miffy_transform, "miffy");
-        this.display_obj(context, program_state, miffy_transform, "miffyEyes");
+        this.display_obj(context, program_state, miffy_face_transform, "miffyFace");
 
         //Draw Cup
         let cup_transform = model_transform;
