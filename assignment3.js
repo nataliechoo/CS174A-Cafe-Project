@@ -23,6 +23,7 @@ export class Assignment3 extends Scene {
             cup: new Shape_From_File("./assets/cafeCup.obj"),
             cafe: new Shape_From_File("./assets/cafeSetting.obj"),
             star: new Shape_From_File("./assets/star.obj"),
+            specialStar: new Shape_From_File("./assets/specialStar.obj"),
             moon: new Shape_From_File("./assets/tableMoon.obj"),
             cloudCounter: new Shape_From_File("./assets/cloudCounter.obj"),
             wallsAndFloor: new Shape_From_File("./assets/wallsAndFloor.obj"),
@@ -58,8 +59,14 @@ export class Assignment3 extends Scene {
             star: new Material(new Gouraud_Shader(100), {
                 ambient: 0.9,
                 diffusivity: 0.001, //this is shiny, use 0.1 for smooth clay look
-                specularity: 50,
+                specularity: 5,
                 color: hex_color("#FBF2C0")
+            }),
+            specialStar: new Material(new Gouraud_Shader(100), {
+                ambient: 0.9,
+                diffusivity: 0.001, //this is shiny, use 0.1 for smooth clay look
+                specularity: 50,
+                color: hex_color("#FBF2C0"),
             }),
             moon: new Material(new Gouraud_Shader(100), {
                 ambient: 0.9,
@@ -234,7 +241,7 @@ export class Assignment3 extends Scene {
 
         background_transform = background_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,0.7,0)).times(Mat4.scale(7,7,7));
         moon_transform = moon_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(2.8,1,-2.5)).times(Mat4.scale(2.9,2.9,2.9));
-        cloudCounter_transform = cloudCounter_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,-0.5,-2)).times(Mat4.scale(2.5,2.5,2.5));
+        cloudCounter_transform = cloudCounter_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,-1.2,-2)).times(Mat4.scale(2.5,2.5,2.5));
         wallsAndFloor_transform = wallsAndFloor_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(-3,1.8,5)).times(Mat4.scale(12.5,12.5,12.5));
 
         this.display_obj(context, program_state, moon_transform, "moon");
@@ -277,7 +284,7 @@ export class Assignment3 extends Scene {
         var star_height = Math.abs(Math.sin(t));
 
         star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
-        this.display_obj(context, program_state, star_transform, "star");
+        this.display_obj(context, program_state, star_transform, "specialStar");
 
         //Draw Background Stars
         this.drawStars(context, program_state, star_pos);
