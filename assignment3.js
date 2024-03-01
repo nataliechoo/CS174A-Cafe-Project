@@ -17,9 +17,14 @@ export class Assignment3 extends Scene {
             circle: new defs.Regular_2D_Polygon(1, 15),
             // TODO:  CREATE SHAPES FOR THE OBJECTS (see examples from assignment 3 below)
 
-            // TODO: NEW OBJECTS!! TESTING MIFFY
+            // Baristas:
             miffy: new Shape_From_File("./assets/smaller3ObjectsMiffyMinusEyes.obj"),
             miffyFace: new Shape_From_File("./assets/miffyEyesAndMouth.obj"),
+            capyBody: new Shape_From_File("./assets/capyBody.obj"),
+            capyFace: new Shape_From_File("./assets/capyEyesNose.obj"),
+            capySnot: new Shape_From_File("./assets/capySnot.obj"),
+
+            //objects
             cup: new Shape_From_File("./assets/cafeCup.obj"),
             cafe: new Shape_From_File("./assets/cafeSetting.obj"),
             star: new Shape_From_File("./assets/star.obj"),
@@ -42,7 +47,26 @@ export class Assignment3 extends Scene {
             miffyFace: new Material(new defs.Phong_Shader(), {
                 ambient: 0.67,
                 diffusivity: 0.11,
+                specularity: 3,
                 color: hex_color("#2E2F2F")
+            }),
+            capyBody: new Material(new defs.Phong_Shader(), {
+                ambient: 0.67,
+                diffusivity: 0.5,
+                specularity: 0.05,  // lower spec = more matte, higher = more glassy
+                color: hex_color("#66442a")
+            }),
+            capyFace: new Material(new defs.Phong_Shader(), {
+                ambient: 0.67,
+                diffusivity: 0.11,
+                specularity: 3,
+                color: hex_color("#2E2F2F")
+            }),
+            capySnot: new Material(new defs.Phong_Shader(), {
+                ambient: 0.67,
+                diffusivity: 1,
+                specularity: 10,
+                color: hex_color("#81b4eb")
             }),
             cup: new Material(new defs.Phong_Shader(), {
                 ambient: 1,
@@ -215,6 +239,33 @@ export class Assignment3 extends Scene {
         }
     }
 
+    drawCapy(context, program_state, capy_elems_pos){
+        let capy_body_trans = capy_elems_pos;
+        capy_body_trans = capy_body_trans.times(Mat4.scale(1.25,1.5,1.5));
+
+        let capy_face_trans = capy_elems_pos;
+        capy_face_trans = capy_face_trans.times(Mat4.scale(.4,.5,.60)).times(Mat4.translation(5.4, 1, 0.04));
+
+        let capy_snot_trans = capy_elems_pos;
+        capy_snot_trans = capy_snot_trans.times(Mat4.scale(.2,.2,.2)).times(Mat4.translation(12,0,-1));
+
+        this.display_obj(context, program_state, capy_body_trans, "capyBody");
+        this.display_obj(context, program_state, capy_face_trans, "capyFace");
+        this.display_obj(context, program_state, capy_snot_trans, "capySnot");
+    }
+
+    drawMiffy(context, program_state, miffy_base) {
+        // let miffy_transform = miffy_base;
+        // miffy_transform = miffy_transform
+        //     .times(Mat4.rotation(0.3, 0, 1,0))
+        //     .times(Mat4.scale(1.5,1.5,1.5))
+        //     .times(Mat4.translation(2.2,0.5,-1.5));
+        let miffy_face_pos = miffy_base;
+        miffy_face_pos = miffy_face_pos.times(Mat4.translation(2.5, 3, -2.5)).times(Mat4.scale(.3,.3,.3))
+            .times(Mat4.translation(-8.5,-9.1,10.69));
+        this.display_obj(context, program_state, miffy_base, "miffy");
+        this.display_obj(context, program_state, miffy_face_pos, "miffyFace");
+    }
     display(context, program_state) {
 
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
@@ -254,21 +305,22 @@ export class Assignment3 extends Scene {
         this.display_obj(context, program_state, sky_placement, "sky");
 
         //Draw Miffy
-        let miffy_transform = model_transform;
-        miffy_transform = miffy_transform
+        let miffy_base_transform = model_transform;
+        //TO CHANGE MIFFY'S LCOATION CHANGE miffy_base_transform AND ALL PIECES WILL MOVE TOGETHER
+        miffy_base_transform = miffy_base_transform
             .times(Mat4.rotation(0.3, 0, 1,0))
             .times(Mat4.scale(1.5,1.5,1.5))
             .times(Mat4.translation(2.2,0.5,-1.5));
-        let miffy_face_transform = model_transform;
-        let miffy_face_pos = model_transform;
-        miffy_face_pos = model_transform.times(Mat4.translation(2.5, 3, -2.5));
-        miffy_face_transform = miffy_face_pos
-            .times(Mat4.rotation(0.3, 0, 1,0))
-            .times(Mat4.scale(.4,.4,.4))
-            .times(Mat4.translation(0.19,-4.68,1.1));
-        this.display_obj(context, program_state, miffy_transform, "miffy");
-        this.display_obj(context, program_state, miffy_face_transform, "miffyFace");
 
+        this.drawMiffy(context, program_state, miffy_base_transform);
+
+        //Draw Capy
+        let capy_base_pos = model_transform;
+
+        //TO CHANGE CAPY'S LOCATION, EDIT CAPY_BASE_POS AND ALL OF HIS PIECES WILL MOVE TOGETHER
+        capy_base_pos = capy_base_pos.times(Mat4.rotation(5, 0, 1, 0)).times(Mat4.translation(-2,-1,-7));
+        this.drawCapy(context, program_state, capy_base_pos);
+        
         //Draw Cup
         let cup_transform = model_transform;
         cup_transform = cup_transform.times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(7, 0, -3));
