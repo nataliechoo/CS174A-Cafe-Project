@@ -1,5 +1,7 @@
 import {defs, tiny} from './examples/common.js';
 import {Shape_From_File} from "./examples/obj-file-demo.js"; //Will prob need this for creating characters
+import { Text_Line } from "./examples/text-demo.js"; //Needed for adding text
+
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture
@@ -33,6 +35,7 @@ export class Assignment3 extends Scene {
             cloudCounter: new Shape_From_File("./assets/cloudCounter.obj"),
             wallsAndFloor: new Shape_From_File("./assets/wallsAndFloor.obj"),
             sky: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(4),
+            text: new Text_Line(50),
         };
 
         // *** Materials
@@ -117,10 +120,15 @@ export class Assignment3 extends Scene {
                 specularity: 0,
                 color: hex_color("#2E2F2F"),
             }),
+            text: new Material(new defs.Textured_Phong(), {
+                ambient: 1,
+                color: hex_color("#000000"),
+                texture: new Texture("assets/text.png"),
+            }),
 
         }
         //setup initial POV
-        this.initial_camera_location = Mat4.look_at(vec3( 12, 0.25, 15 ), vec3( 0,1,0 ), vec3( 0,6,0 ));
+        this.initial_camera_location = Mat4.look_at(vec3( 17, 0.25, 40 ), vec3( 0,1,0 ), vec3( 0,6,0 ));
 
         //set up static background stars
         this.starPositionsInitialized = false;
@@ -128,6 +136,52 @@ export class Assignment3 extends Scene {
         this.starPositionsFront = [];
         this.starPositionsLeft = [];
         this.starPositionsRight = [];
+
+        //Messages
+        this.openingMessage = "Greet Baristas [x]"
+        this.welcomeMessage = "Welcome To Lunar Cafe! [x]";
+        this.baristaQuestion = "Which Barista can assist you?";
+        this.baristaOptionMiffy = "Miffy [M]";
+        this.baristaOptionCapy = "Capy [C]";
+        this.selectedMiffyMessage = "You Chose Miffy! [x]";
+        this.selectedCapyMessage = "You Chose Capy! [x]";
+        this.miffyIntroductionMessage = "Greetings! I'm Miffy!";
+        this.capyIntroductionMessage = "Salutations! I'm Capy!";
+        this.drinkChoicesMessage = "Please Choose A Drink To Read About!";
+        this.drinkOptionGreenTea = "Green tea [G]";
+        this.drinkOptionEspresso = "Espresso [E]";
+        this.drinkOptionLatte = "Latte [L]";
+        this.greenTeaDescription = "Green Tea gives you wisdom and vitality!";
+        this.espressoDescription1 = "Espresso makes your mind sharp and clear.";
+        this.espressoDescription2 = "Ready to ace an exam without fatigue?";
+        this.latteDescription = "Latte gives you a mix of vitality and energy!";
+        this.confirmDrinkChoiceMessage = "Choose this drink [x]";
+        this.backToDrinkChoicesMessage = "Return back to drink choices [B]";
+
+        //Message flags
+        this.showOpeningMessage = true;
+        this.showWelcomeMessage = false;
+        this.showBaristaQuestion = false;
+        this.showSelectedMiffyMessage = false;
+        this.showSelectedCapyMessage = false;
+        this.showMiffyIntroductionMessage = false;
+        this.showCapyIntroductionMessage = false;
+        this.showDrinkChoicesMessage = false;
+        this.showGreenTeaDescription = false;
+        this.showEspressoDescription = false;
+        this.showLatteDescription = false;
+
+        //Needed to display messages letter by letter (one variable needed for each line present per screen)
+        this.messageIndex = 0;
+        this.messageIndex2 = 0;
+        this.messageIndex3 = 0;
+        this.messageIndex4 = 0;
+        this.messageIndex5 = 0;
+
+        //Flags needed for barista animation during drink brewing
+        this.baristaIsMiffy = false;
+        this.baristaIsCapy = false;
+
     }
 
     make_control_panel() {
@@ -141,10 +195,143 @@ export class Assignment3 extends Scene {
         this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
         this.new_line();
         this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
+        this.new_line();
+        this.key_triggered_button("Next Message", ["x"], () => {
+
+            if(this.showOpeningMessage) {
+                this.showOpeningMessage = false;
+                this.showWelcomeMessage = true;
+                this.messageIndex = 0;
+
+                //We can have some boolean to lock the users screen so they have to look at both baristas
+
+            } else if (this.showWelcomeMessage) {
+                this.showWelcomeMessage = false;
+                this.showBaristaQuestion = true;
+                this.messageIndex = 0;
+            } else if (this.showSelectedMiffyMessage) {
+                this.showSelectedMiffyMessage = false;
+                this.showMiffyIntroductionMessage = true;
+                this.showDrinkChoicesMessage = true;
+                this.messageIndex = 0;
+            } else if (this.showSelectedCapyMessage) {
+                this.showSelectedCapyMessage = false;
+                this.showCapyIntroductionMessage = true;
+                this.showDrinkChoicesMessage = true;
+                this.messageIndex = 0;
+            } else if (this.showGreenTeaDescription) {
+                this.showGreenTeaDescription = false;
+
+                //Implement logic / booleans to here show drink being created
+                //we can make use of the this.baristaIsMiffy or this.baristaIsCapy for animations
+
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+
+            } else if (this.showEspressoDescription) {
+                this.showEspressoDescription = false;
+
+                //Implement logic / booleans to here show drink being created
+                //we can make use of the this.baristaIsMiffy or this.baristaIsCapy for animations
+
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+
+            } else if (this.showLatteDescription) {
+                this.showLatteDescription = false;
+
+                //Implement logic / booleans to here show drink being created
+                //we can make use of the this.baristaIsMiffy or this.baristaIsCapy for animations
+
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+
+            }
+
+        });
+        this.key_triggered_button("Choose Miffy", ["Shift", "M"], () => {
+            if(this.showBaristaQuestion) {
+                this.showBaristaQuestion = false;
+                this.showSelectedMiffyMessage = true;
+                this.baristaIsMiffy = true;
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+
+                //We can put a boolean here to lock the users screen, will only Miffy in the FOV (Remove Capy from display)
+            }
+        });
+        this.key_triggered_button("Choose Capy", ["Shift", "C"], () => {
+            if(this.showBaristaQuestion) {
+                this.showBaristaQuestion = false;
+                this.showSelectedCapyMessage = true;
+                this.baristaIsCapy = true;
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+
+                //We can put a boolean here to lock the users screen, will only Capy in the FOV (Remove Miffy from FOV)
+            }
+        });
+        this.key_triggered_button("Choose Green Tea", ["Shift", "G"], () => {
+            if(this.showDrinkChoicesMessage) {
+                this.showDrinkChoicesMessage = false;
+                this.showGreenTeaDescription = true;
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+            }
+        });
+        this.key_triggered_button("Choose Espresso", ["Shift", "E"], () => {
+            if(this.showDrinkChoicesMessage) {
+                this.showDrinkChoicesMessage = false;
+                this.showEspressoDescription = true;
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+            }
+        });
+        this.key_triggered_button("Choose Latte", ["Shift", "L"], () => {
+            if(this.showDrinkChoicesMessage) {
+                this.showDrinkChoicesMessage = false;
+                this.showLatteDescription = true;
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+            }
+        });
+        this.key_triggered_button("Back To Drinks", ["Shift", "B"], () => {
+            if(this.showGreenTeaDescription || this.showEspressoDescription || this.latteDescription) {
+                this.showGreenTeaDescription = this.showEspressoDescription = this.showLatteDescription = false;
+                this.showMiffyIntroductionMessage = this.showCapyIntroductionMessage = false;
+                this.showDrinkChoicesMessage = true;
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+            }
+        });
     }
 
     //draw selected object chosen by objKey, customize the lighting and the coloring of the object before drawing it
     display_obj(context, program_state, model_transform, objKey){
+
         // basic parameters
         let obj_color = this.materials[objKey].color;
 
@@ -268,6 +455,8 @@ export class Assignment3 extends Scene {
     }
     display(context, program_state) {
 
+        let t = program_state.animation_time / 1000;
+
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
@@ -326,8 +515,320 @@ export class Assignment3 extends Scene {
         cup_transform = cup_transform.times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(7, 0, -3));
         this.display_obj(context, program_state, cup_transform, "cup");
 
+        //Opening message
+        if(this.showOpeningMessage){
+            let opening_transform = Mat4.identity().times(Mat4.translation(0, 5, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5));
+
+            if (this.messageIndex < this.openingMessage.length) {
+                this.shapes.text.set_string(this.openingMessage.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, opening_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.openingMessage, context.context);
+                this.shapes.text.draw(context, program_state, opening_transform, this.materials.text);
+            }
+
+        }
+
+        //Welcome message
+        if(this.showWelcomeMessage){
+            let welcome_transform = Mat4.identity().times(Mat4.translation(0, 5, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5));
+
+            if (this.messageIndex < this.welcomeMessage.length) {
+                    this.shapes.text.set_string(this.welcomeMessage.substring(0, this.messageIndex + 1), context.context);
+                    this.shapes.text.draw(context, program_state, welcome_transform, this.materials.text);
+                    this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.welcomeMessage, context.context);
+                this.shapes.text.draw(context, program_state, welcome_transform, this.materials.text);
+            }
+
+        }
+
+        //Barista Question and Options
+        if(this.showBaristaQuestion){
+            let baristaQuestion_transform = Mat4.identity().times(Mat4.translation(0, 9, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5));
+            let baristaOptionMiffy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(15, 15, 0));
+            let baristaOptionCapy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(16, 12, 0));
+
+            let firstLineDone = false;
+            let secondLineDone = false;
+
+            if (this.messageIndex < this.baristaQuestion.length) {
+                this.shapes.text.set_string(this.baristaQuestion.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, baristaQuestion_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.baristaQuestion, context.context);
+                this.shapes.text.draw(context, program_state, baristaQuestion_transform, this.materials.text);
+                firstLineDone = true;
+            }
+
+            if (this.messageIndex2 < this.baristaOptionMiffy.length && firstLineDone) {
+                this.shapes.text.set_string(this.baristaOptionMiffy.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, baristaOptionMiffy_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone) {
+                this.shapes.text.set_string(this.baristaOptionMiffy, context.context);
+                this.shapes.text.draw(context, program_state, baristaOptionMiffy_transform, this.materials.text);
+                secondLineDone = true;
+            }
+
+            if (this.messageIndex3 < this.baristaOptionCapy.length && secondLineDone) {
+                this.shapes.text.set_string(this.baristaOptionCapy.substring(0, this.messageIndex3 + 1), context.context);
+                this.shapes.text.draw(context, program_state, baristaOptionCapy_transform, this.materials.text);
+                this.messageIndex3++;
+            } else if (secondLineDone) {
+                this.shapes.text.set_string(this.baristaOptionCapy, context.context);
+                this.shapes.text.draw(context, program_state, baristaOptionCapy_transform, this.materials.text);
+            }
+
+        }
+
+        //User chooses Miffy to be Barista
+        if(this.showSelectedMiffyMessage){
+            let selectedMiffy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 13, 0));
+
+            if (this.messageIndex < this.selectedMiffyMessage.length) {
+                this.shapes.text.set_string(this.selectedMiffyMessage.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, selectedMiffy_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.selectedMiffyMessage, context.context);
+                this.shapes.text.draw(context, program_state, selectedMiffy_transform, this.materials.text);
+            }
+
+        }
+
+        //User chooses Capy to be Barista
+        if(this.showSelectedCapyMessage){
+            let selectedCapy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 13, 0));
+
+            if (this.messageIndex < this.selectedCapyMessage.length) {
+                this.shapes.text.set_string(this.selectedCapyMessage.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, selectedCapy_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.selectedCapyMessage, context.context);
+                this.shapes.text.draw(context, program_state, selectedCapy_transform, this.materials.text);
+            }
+
+        }
+
+
+        if(this.showDrinkChoicesMessage){
+
+            let introduction_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 22, 0));
+            let drinkChoices_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 19, 0));
+            let greenTea_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 13, 0));
+            let espresso_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 10, 0));
+            let latte_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 7 , 0));
+
+            let firstLineDone = false;
+            let secondLineDone = false;
+            let thirdLineDone = false;
+            let fourthLineDone = false;
+
+            if(this.showMiffyIntroductionMessage){
+                if (this.messageIndex < this.miffyIntroductionMessage.length) {
+                    this.shapes.text.set_string(this.miffyIntroductionMessage.substring(0, this.messageIndex + 1), context.context);
+                    this.shapes.text.draw(context, program_state, introduction_transform, this.materials.text);
+                    this.messageIndex++;
+                } else {
+                    this.shapes.text.set_string(this.miffyIntroductionMessage, context.context);
+                    this.shapes.text.draw(context, program_state, introduction_transform, this.materials.text);
+                    firstLineDone = true;
+                }
+            }
+
+            if(this.showCapyIntroductionMessage){
+                if (this.messageIndex < this.capyIntroductionMessage.length) {
+                    this.shapes.text.set_string(this.capyIntroductionMessage.substring(0, this.messageIndex + 1), context.context);
+                    this.shapes.text.draw(context, program_state, introduction_transform, this.materials.text);
+                    this.messageIndex++;
+                } else {
+                    this.shapes.text.set_string(this.capyIntroductionMessage, context.context);
+                    this.shapes.text.draw(context, program_state, introduction_transform, this.materials.text);
+                    firstLineDone = true;
+                }
+            }
+
+            if(!this.showMiffyIntroductionMessage && !this.showCapyIntroductionMessage){
+                firstLineDone = true;
+            }
+
+            if (this.messageIndex2 < this.drinkChoicesMessage.length && firstLineDone) {
+                this.shapes.text.set_string(this.drinkChoicesMessage.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, drinkChoices_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone) {
+                this.shapes.text.set_string(this.drinkChoicesMessage, context.context);
+                this.shapes.text.draw(context, program_state, drinkChoices_transform, this.materials.text);
+                secondLineDone = true;
+            }
+
+            if (this.messageIndex3 < this.drinkOptionGreenTea.length && secondLineDone) {
+                this.shapes.text.set_string(this.drinkOptionGreenTea.substring(0, this.messageIndex3 + 1), context.context);
+                this.shapes.text.draw(context, program_state, greenTea_transform, this.materials.text);
+                this.messageIndex3++;
+            } else if (secondLineDone){
+                this.shapes.text.set_string(this.drinkOptionGreenTea, context.context);
+                this.shapes.text.draw(context, program_state, greenTea_transform, this.materials.text);
+                thirdLineDone = true;
+            }
+
+            if (this.messageIndex4 < this.drinkOptionEspresso.length && thirdLineDone) {
+                this.shapes.text.set_string(this.drinkOptionEspresso.substring(0, this.messageIndex4 + 1), context.context);
+                this.shapes.text.draw(context, program_state, espresso_transform, this.materials.text);
+                this.messageIndex4++;
+            } else if (thirdLineDone) {
+                this.shapes.text.set_string(this.drinkOptionEspresso, context.context);
+                this.shapes.text.draw(context, program_state, espresso_transform, this.materials.text);
+                fourthLineDone = true;
+            }
+
+            if (this.messageIndex5 < this.drinkOptionLatte.length && fourthLineDone) {
+                this.shapes.text.set_string(this.drinkOptionLatte.substring(0, this.messageIndex5 + 1), context.context);
+                this.shapes.text.draw(context, program_state, latte_transform, this.materials.text);
+                this.messageIndex5++;
+            } else if (fourthLineDone){
+                this.shapes.text.set_string(this.drinkOptionLatte, context.context);
+                this.shapes.text.draw(context, program_state, latte_transform, this.materials.text);
+            }
+
+        }
+
+        if(this.showGreenTeaDescription){
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 16, 0));
+            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 10, 0));
+            let return_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 7, 0));
+
+            let firstLineDone = false;
+            let secondLineDone = false;
+
+            if (this.messageIndex < this.greenTeaDescription.length) {
+                this.shapes.text.set_string(this.greenTeaDescription.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.greenTeaDescription, context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                firstLineDone = true;
+            }
+
+            if (this.messageIndex2 < this.confirmDrinkChoiceMessage.length && firstLineDone) {
+                this.shapes.text.set_string(this.confirmDrinkChoiceMessage.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone){
+                this.shapes.text.set_string(this.confirmDrinkChoiceMessage, context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                secondLineDone = true;
+            }
+
+            if (this.messageIndex3 < this.backToDrinkChoicesMessage.length && secondLineDone) {
+                this.shapes.text.set_string(this.backToDrinkChoicesMessage.substring(0, this.messageIndex3 + 1), context.context);
+                this.shapes.text.draw(context, program_state, return_transform, this.materials.text);
+                this.messageIndex3++;
+            } else if (secondLineDone){
+                this.shapes.text.set_string(this.backToDrinkChoicesMessage, context.context);
+                this.shapes.text.draw(context, program_state, return_transform, this.materials.text);
+            }
+
+        }
+
+        if(this.showEspressoDescription){
+            let description1_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 16, 0));
+            let description2_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 13, 0));
+            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 7, 0));
+            let return_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 4, 0));
+
+            let firstLineDone = false;
+            let secondLineDone = false;
+            let thirdLineDone = false;
+
+            if (this.messageIndex < this.espressoDescription1.length) {
+                this.shapes.text.set_string(this.espressoDescription1.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, description1_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.espressoDescription1, context.context);
+                this.shapes.text.draw(context, program_state, description1_transform, this.materials.text);
+                firstLineDone = true;
+            }
+
+            if (this.messageIndex2 < this.espressoDescription2.length && firstLineDone) {
+                this.shapes.text.set_string(this.espressoDescription2.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, description2_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone){
+                this.shapes.text.set_string(this.espressoDescription2, context.context);
+                this.shapes.text.draw(context, program_state, description2_transform, this.materials.text);
+                secondLineDone = true;
+            }
+
+            if (this.messageIndex3 < this.confirmDrinkChoiceMessage.length && secondLineDone) {
+                this.shapes.text.set_string(this.confirmDrinkChoiceMessage.substring(0, this.messageIndex3 + 1), context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                this.messageIndex3++;
+            } else if (secondLineDone){
+                this.shapes.text.set_string(this.confirmDrinkChoiceMessage, context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                thirdLineDone = true;
+            }
+
+            if (this.messageIndex4 < this.backToDrinkChoicesMessage.length && thirdLineDone) {
+                this.shapes.text.set_string(this.backToDrinkChoicesMessage.substring(0, this.messageIndex4 + 1), context.context);
+                this.shapes.text.draw(context, program_state, return_transform, this.materials.text);
+                this.messageIndex4++;
+            } else if (thirdLineDone){
+                this.shapes.text.set_string(this.backToDrinkChoicesMessage, context.context);
+                this.shapes.text.draw(context, program_state, return_transform, this.materials.text);
+            }
+
+        }
+
+        if(this.showLatteDescription){
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 16, 0));
+            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 10, 0));
+            let return_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 7, 0));
+
+            let firstLineDone = false;
+            let secondLineDone = false;
+
+            if (this.messageIndex < this.latteDescription.length) {
+                this.shapes.text.set_string(this.latteDescription.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.latteDescription, context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                firstLineDone = true;
+            }
+
+            if (this.messageIndex2 < this.confirmDrinkChoiceMessage.length && firstLineDone) {
+                this.shapes.text.set_string(this.confirmDrinkChoiceMessage.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone){
+                this.shapes.text.set_string(this.confirmDrinkChoiceMessage, context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                secondLineDone = true;
+            }
+
+            if (this.messageIndex3 < this.backToDrinkChoicesMessage.length && secondLineDone) {
+                this.shapes.text.set_string(this.backToDrinkChoicesMessage.substring(0, this.messageIndex3 + 1), context.context);
+                this.shapes.text.draw(context, program_state, return_transform, this.materials.text);
+                this.messageIndex3++;
+            } else if (secondLineDone){
+                this.shapes.text.set_string(this.backToDrinkChoicesMessage, context.context);
+                this.shapes.text.draw(context, program_state, return_transform, this.materials.text);
+            }
+
+        }
+
+
         // Draw Rotating Star
-        let t = program_state.animation_time / 1000;
 
         let star_transform = model_transform;
         let star_size = Math.max(0.6, 0.8*Math.abs(Math.cos(t/3)));
