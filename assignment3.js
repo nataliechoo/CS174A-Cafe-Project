@@ -151,12 +151,12 @@ export class Assignment3 extends Scene {
         this.drinkOptionGreenTea = "Green tea [G]";
         this.drinkOptionEspresso = "Espresso [E]";
         this.drinkOptionLatte = "Latte [L]";
-        this.greenTeaDescription = "Green Tea gives you wisdom and vitality!";
-        this.espressoDescription1 = "Espresso makes your mind sharp and clear.";
+        this.greenTeaDescription = "Green Tea gives you wisdom!";
+        this.espressoDescription1 = "Espresso makes your mind sharp!";
         this.espressoDescription2 = "Ready to ace an exam without fatigue?";
-        this.latteDescription = "Latte gives you a mix of vitality and energy!";
+        this.latteDescription = "Latte gives you vitality!";
         this.confirmDrinkChoiceMessage = "Choose this drink [x]";
-        this.backToDrinkChoicesMessage = "Return back to drink choices [B]";
+        this.backToDrinkChoicesMessage = "Choose another drink [B]";
 
         //Message flags
         this.showOpeningMessage = true;
@@ -197,6 +197,8 @@ export class Assignment3 extends Scene {
         this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
         this.new_line();
         this.key_triggered_button("Next Message", ["x"], () => {
+            //set up view for when interacting with employees
+            this.attached = () => this.cloudCounter;
 
             if(this.showOpeningMessage) {
                 this.showOpeningMessage = false;
@@ -442,11 +444,6 @@ export class Assignment3 extends Scene {
     }
 
     drawMiffy(context, program_state, miffy_base) {
-        // let miffy_transform = miffy_base;
-        // miffy_transform = miffy_transform
-        //     .times(Mat4.rotation(0.3, 0, 1,0))
-        //     .times(Mat4.scale(1.5,1.5,1.5))
-        //     .times(Mat4.translation(2.2,0.5,-1.5));
         let miffy_face_pos = miffy_base;
         miffy_face_pos = miffy_face_pos.times(Mat4.translation(2.5, 3, -2.5)).times(Mat4.scale(.3,.3,.3))
             .times(Mat4.translation(-8.5,-9.1,10.69));
@@ -454,7 +451,6 @@ export class Assignment3 extends Scene {
         this.display_obj(context, program_state, miffy_face_pos, "miffyFace");
     }
     display(context, program_state) {
-
         let t = program_state.animation_time / 1000;
 
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
@@ -464,13 +460,10 @@ export class Assignment3 extends Scene {
             program_state.set_camera(this.initial_camera_location);
         }
 
+        let talking_offset_and_rotation = Mat4.rotation(0.5, 0, 1, 0).times(Mat4.translation(3,1.4,15));
+
         //set up basic overhead light
         program_state.lights = [new Light(vec4(50,600,250,1), hex_color("#f3d9fc"), 65000000)];
-        //#55eb34 stronger green
-        //d1ffc7 pale green light (basically white light)
-        //a7ff94 barely there green light
-        //f3d9fc lilac
-
         let model_transform = Mat4.identity();
 
         //Draw Background
@@ -480,9 +473,11 @@ export class Assignment3 extends Scene {
         let wallsAndFloor_transform = model_transform;
 
         background_transform = background_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,0.7,0)).times(Mat4.scale(7,7,7));
-        moon_transform = moon_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(2.8,1,-2.5)).times(Mat4.scale(2.9,2.9,2.9));
+        moon_transform = moon_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(2.8,0.5,-2.5)).times(Mat4.scale(2,2,2));
         cloudCounter_transform = cloudCounter_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(0,-1.2,-2)).times(Mat4.scale(2.5,2.5,2.5));
-        wallsAndFloor_transform = wallsAndFloor_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(-3,1.8,5)).times(Mat4.scale(12.5,12.5,12.5));
+        wallsAndFloor_transform = wallsAndFloor_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(-3,1.8,5)).times(Mat4.scale(16,12.5,12.5));
+
+        this.cloudCounter = Mat4.inverse(talking_offset_and_rotation);
 
         this.display_obj(context, program_state, moon_transform, "moon");
         this.display_obj(context, program_state, cloudCounter_transform, "cloudCounter");
@@ -517,7 +512,7 @@ export class Assignment3 extends Scene {
 
         //Opening message
         if(this.showOpeningMessage){
-            let opening_transform = Mat4.identity().times(Mat4.translation(0, 5, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5));
+            let opening_transform = Mat4.identity().times(Mat4.translation(3, 5, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25));
 
             if (this.messageIndex < this.openingMessage.length) {
                 this.shapes.text.set_string(this.openingMessage.substring(0, this.messageIndex + 1), context.context);
@@ -532,7 +527,7 @@ export class Assignment3 extends Scene {
 
         //Welcome message
         if(this.showWelcomeMessage){
-            let welcome_transform = Mat4.identity().times(Mat4.translation(0, 5, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5));
+            let welcome_transform = Mat4.identity().times(Mat4.translation(3, 5, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25));
 
             if (this.messageIndex < this.welcomeMessage.length) {
                     this.shapes.text.set_string(this.welcomeMessage.substring(0, this.messageIndex + 1), context.context);
@@ -547,9 +542,9 @@ export class Assignment3 extends Scene {
 
         //Barista Question and Options
         if(this.showBaristaQuestion){
-            let baristaQuestion_transform = Mat4.identity().times(Mat4.translation(0, 9, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5));
-            let baristaOptionMiffy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(15, 15, 0));
-            let baristaOptionCapy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(16, 12, 0));
+            let baristaQuestion_transform = Mat4.identity().times(Mat4.translation(2, 5, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25));
+            let baristaOptionMiffy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(10, 18, 0));
+            let baristaOptionCapy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(24, 6.5, 0));
 
             let firstLineDone = false;
             let secondLineDone = false;
@@ -587,7 +582,7 @@ export class Assignment3 extends Scene {
 
         //User chooses Miffy to be Barista
         if(this.showSelectedMiffyMessage){
-            let selectedMiffy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 13, 0));
+            let selectedMiffy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 18, 0));
 
             if (this.messageIndex < this.selectedMiffyMessage.length) {
                 this.shapes.text.set_string(this.selectedMiffyMessage.substring(0, this.messageIndex + 1), context.context);
@@ -602,7 +597,7 @@ export class Assignment3 extends Scene {
 
         //User chooses Capy to be Barista
         if(this.showSelectedCapyMessage){
-            let selectedCapy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 13, 0));
+            let selectedCapy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 16, 0));
 
             if (this.messageIndex < this.selectedCapyMessage.length) {
                 this.shapes.text.set_string(this.selectedCapyMessage.substring(0, this.messageIndex + 1), context.context);
@@ -618,11 +613,11 @@ export class Assignment3 extends Scene {
 
         if(this.showDrinkChoicesMessage){
 
-            let introduction_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 22, 0));
-            let drinkChoices_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 19, 0));
-            let greenTea_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 13, 0));
-            let espresso_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 10, 0));
-            let latte_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 7 , 0));
+            let introduction_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 22, 0));
+            let drinkChoices_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 19, 0));
+            let greenTea_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(23.5, 13, 0));
+            let espresso_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(23.5, 10, 0));
+            let latte_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(23.5, 7 , 0));
 
             let firstLineDone = false;
             let secondLineDone = false;
@@ -699,9 +694,9 @@ export class Assignment3 extends Scene {
         }
 
         if(this.showGreenTeaDescription){
-            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 16, 0));
-            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 10, 0));
-            let return_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 7, 0));
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            let return_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 17, 0));
 
             let firstLineDone = false;
             let secondLineDone = false;
@@ -738,10 +733,10 @@ export class Assignment3 extends Scene {
         }
 
         if(this.showEspressoDescription){
-            let description1_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 16, 0));
-            let description2_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 13, 0));
-            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 7, 0));
-            let return_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 4, 0));
+            let description1_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 26, 0));
+            let description2_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 23, 0));
+            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 19, 0));
+            let return_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 16, 0));
 
             let firstLineDone = false;
             let secondLineDone = false;
@@ -789,9 +784,9 @@ export class Assignment3 extends Scene {
         }
 
         if(this.showLatteDescription){
-            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 16, 0));
-            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 10, 0));
-            let return_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(0, 7, 0));
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            let return_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 17, 0));
 
             let firstLineDone = false;
             let secondLineDone = false;
@@ -829,10 +824,12 @@ export class Assignment3 extends Scene {
 
 
         // Draw Rotating Star
-
         let star_transform = model_transform;
-        let star_size = Math.max(0.6, 0.8*Math.abs(Math.cos(t/3)));
-        let star_pos = star_transform.times(Mat4.translation(1.5,2.2,2)).times(Mat4.scale(star_size, star_size, star_size));
+        let star_size = Math.max(0.2, 0.4*Math.abs(Math.cos(t/2.5)));
+        let star_pos = star_transform.times(Mat4.translation(2,1.3,2));
+        let background_stars = star_pos;
+        background_stars = background_stars.times(Mat4.scale(2, 2, 2));
+        star_pos = star_pos.times(Mat4.scale(star_size, star_size, star_size));
         var star_rotation = 5 * Math.sin((1.3*t));
         var star_height = Math.abs(Math.sin(t));
 
@@ -840,7 +837,7 @@ export class Assignment3 extends Scene {
         this.display_obj(context, program_state, star_transform, "specialStar");
 
         //Draw Background Stars
-        this.drawStars(context, program_state, star_pos);
+        this.drawStars(context, program_state, background_stars);
 
         if (this.attached !== undefined) {
             program_state.camera_inverse = this.attached().map((x,i) => Vector.from(program_state.camera_inverse[i]).mix(x, 0.1));
