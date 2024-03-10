@@ -178,7 +178,7 @@ export class Assignment3 extends Scene {
         this.drinkOptionEspresso = "Espresso [E]";
         this.drinkOptionLatte = "Latte [L]";
         this.greenTeaDescription = "Green Tea gives you wisdom!";
-        this.espressoDescription1 = "Espresso makes your mind sharp!";
+        this.espressoDescription1 = "Espresso sharpens your mind!";
         this.espressoDescription2 = "Ready to ace an exam without fatigue?";
         this.latteDescription = "Latte gives you vitality!";
         this.confirmDrinkChoiceMessage = "Choose this drink [x]";
@@ -280,9 +280,16 @@ export class Assignment3 extends Scene {
         this.key_triggered_button("Attach to planet 2", ["Control", "2"], () => this.attached = () => this.planet_2);
         this.new_line();
         this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
-        this.key_triggered_button("Inspect Drink", ["i"], () => {
-            this.attached = () => this.drink;
-            this.playsound("inspect", 1)
+        this.key_triggered_button("Inspect Drink/Exit Inspect", ["i"], () => {
+            if (this.attached() !== this.drink) {
+                this.attached = () => this.drink;
+                this.playsound("inspect", 1)
+            }
+            else {
+                this.attached = () => this.cloudCounter;
+                this.playsound("inspect", 1)
+            }
+
 
         });
         this.new_line();
@@ -456,6 +463,8 @@ export class Assignment3 extends Scene {
                 //We can put a boolean here to lock the users screen, will only Capy in the FOV (Remove Miffy from FOV)
             }
         });
+
+        //AFTER A CHOICE BEING MADE, MAGIC SOUND WILL PLAY AFTER A DELAY
         this.key_triggered_button("Choose Green Tea", ["Shift", "G"], () => {
             if(this.showDrinkChoicesMessage) {
                 this.showDrinkChoicesMessage = false;
@@ -1125,10 +1134,19 @@ export class Assignment3 extends Scene {
         //Draw Background Stars
         this.drawStars(context, program_state, background_stars);
 
+        //TESTER
+        // let drink_transform = cup_transform;
+        // // drink_transform = drink_transform.times(Mat4.rotation(Math.max(0, Math.sin(t))));
+        // // drink_transform = drink_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.rotation(Math.max(0, Math.sin(t)))).times(Mat4.scale(1, 1, 1)).times(Mat4.translation(0,0.05,-1));
+        // drink_transform = drink_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.rotation(Math.abs(Math.sin(0.2*t)), 0, 0, 1)).times(Mat4.scale(1, 1, 1)).times(Mat4.translation(0,0.05,-1));
+
+        // this.shapes.drink.draw(context, program_state, drink_transform, this.materials["Espresso"]);
+
         if (this.makeDrink) {
             //start creating the drink
             let drink_transform = cup_transform;
-            drink_transform = drink_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.scale(1, 1, 1)).times(Mat4.translation(0,0.05,-1));
+            //drink idle stirring
+            drink_transform = drink_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.rotation(25/t**(1/5), 0, 0, 1)).times(Mat4.scale(1, 1, 1)).times(Mat4.translation(0,0.05,-1));
 
             if (this.magic_sound) {
                 this.magic_sound = false
