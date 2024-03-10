@@ -131,16 +131,23 @@ export class Assignment3 extends Scene {
             }),
             greenTea: new Material(new defs.Textured_Phong(), {
                 ambient: 1,
-                //color: hex_color("#FFFFFF"),
-                //WHY IS THIS GOING BLACK SCREEN WHENEVER I USE THE CLOSE UP VERSION ????????
                 texture: new Texture("assets/removedTea2.png"),
+            }),
+            Latte: new Material(new defs.Textured_Phong(), {
+                ambient: 1,
+                texture: new Texture("assets/latte.png"),
+            }),
+            Espresso: new Material(new defs.Textured_Phong(), {
+                ambient: 1,
+                texture: new Texture("assets/espresso.png"),
             }),
         }
         //set up initial POV
         this.initial_camera_location = Mat4.look_at(vec3( 17, 0.25, 40 ), vec3( 0,1,0 ), vec3( 0,6,0 ));
 
         //set up drink making animation flag
-        this.makeDrink = true;
+        this.makeDrink = false;
+        this.drink_choice = "";
         //idea:
         // when x is pressed after description of the thing is shown, set makeDrink = true, and setup drink and trigger animation
 
@@ -173,7 +180,8 @@ export class Assignment3 extends Scene {
         this.backToDrinkChoicesMessage = "Choose another drink [B]";
         this.choseGreenTea = "Green tea coming right up!";
         this.choseLatte = "Latte coming right up!";
-        this.choseEspresso = "Espresso coming right up!"
+        this.choseEspresso = "Espresso coming right up!";
+        this.tryAgain = "Please choose another option";
 
         //Message flags
         this.showOpeningMessage = true;
@@ -190,6 +198,7 @@ export class Assignment3 extends Scene {
         this.showLatteSelection = false;
         this.showEspressoSelection = false;
         this.showGreenTeaSelection = false;
+        this.showTryAgain = false;
 
         //Needed to display messages letter by letter (one variable needed for each line present per screen)
         this.messageIndex = 0;
@@ -212,11 +221,11 @@ export class Assignment3 extends Scene {
         this.key_triggered_button("Attach to planet 2", ["Control", "2"], () => this.attached = () => this.planet_2);
         this.new_line();
         this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
-        this.key_triggered_button("Inspect Drink", ["Control", "I"], () => this.attached = () => this.drink);
+        this.key_triggered_button("Inspect Drink", ["i"], () => this.attached = () => this.drink);
         this.new_line();
         this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
         this.new_line();
-        this.key_triggered_button("Next Message", ["x"], () => {
+        this.key_triggered_button("Next Message/Reset View", ["x"], () => {
             //set up view for when interacting with employees
             this.attached = () => this.cloudCounter;
 
@@ -224,6 +233,7 @@ export class Assignment3 extends Scene {
                 this.showOpeningMessage = false;
                 this.showWelcomeMessage = true;
                 this.messageIndex = 0;
+                this.showTryAgain = false;
 
                 //We can have some boolean to lock the users screen so they have to look at both baristas
 
@@ -243,7 +253,9 @@ export class Assignment3 extends Scene {
                 this.messageIndex = 0;
             } else if (this.showGreenTeaDescription) {
                 this.showGreenTeaDescription = false;
-                this.showGreenTeaSelection = true;
+                this.showGreenTeaSelection = true; //set up for the selection message
+                this.drink_choice = "greenTea"; //set up for when we want to draw the selected drink
+                this.makeDrink = true;
 
 
                 //Implement logic / booleans to here show drink being created
@@ -257,7 +269,10 @@ export class Assignment3 extends Scene {
 
             } else if (this.showEspressoDescription) {
                 this.showEspressoDescription = false;
-                this.showEspressoSelection = true;
+                this.showEspressoSelection = true; //set up for the selection message
+                this.drink_choice = "Espresso"; //set up for when we want to draw the selected drink
+                this.makeDrink = true;
+
 
 
                 //Implement logic / booleans to here show drink being created
@@ -271,7 +286,9 @@ export class Assignment3 extends Scene {
 
             } else if (this.showLatteDescription) {
                 this.showLatteDescription = false;
-                this.showLatteSelection = true;
+                this.showLatteSelection = true; //set up for the selection message
+                this.drink_choice = "Latte"; //set up for when we want to draw the selected drink
+                this.makeDrink = true;
 
 
                 //Implement logic / booleans to here show drink being created
@@ -306,6 +323,14 @@ export class Assignment3 extends Scene {
             else if (this.showLatteSelection) {
                 this.choseLatte = false;
 
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+            }
+            else if (this.showTryAgain) {
+                this.tryAgain = false;
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
                 this.messageIndex3 = 0;
@@ -377,12 +402,17 @@ export class Assignment3 extends Scene {
                 this.showGreenTeaDescription = this.showEspressoDescription = this.showLatteDescription = false;
                 this.showMiffyIntroductionMessage = this.showCapyIntroductionMessage = false;
                 this.showDrinkChoicesMessage = true;
+                this.showGreenTeaSelection = this.showLatteSelection = this.showEspressoSelection = false;
+                this.showTryAgain = false;
+                this.showOpeningMessage = this.showWelcomeMessage = false;
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
                 this.messageIndex3 = 0;
                 this.messageIndex4 = 0;
                 this.messageIndex5 = 0;
             }
+            this.attached = () => this.cloudCounter;
+
         });
     }
 
@@ -924,6 +954,20 @@ export class Assignment3 extends Scene {
 
         }
 
+        if(this.showTryAgain){
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+
+            if (this.messageIndex < this.tryAgain.length) {
+                this.shapes.text.set_string(this.tryAgain.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.tryAgain, context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+            }
+
+        }
+
         // Draw Rotating Star
         let star_transform = model_transform;
         let star_size = Math.max(0.2, 0.4*Math.abs(Math.cos(t/2.5)));
@@ -941,11 +985,18 @@ export class Assignment3 extends Scene {
         this.drawStars(context, program_state, background_stars);
 
         if (this.makeDrink) {
-            let gt_transform = cup_transform;
-            gt_transform = gt_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.scale(1.1, 1.1, 1.1)).times(Mat4.translation(0,0.05,-1));
-            this.shapes.drink.draw(context, program_state, gt_transform, this.materials.greenTea);
-        }
+            //start creating the drink
+            let drink_transform = cup_transform;
+            drink_transform = drink_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.scale(1, 1, 1)).times(Mat4.translation(0,0.05,-1));
 
+            //for some reason if the drink choice is not initialized, advise person to go back to selecting
+            if (this.drink_choice === "") {
+                this.showTryAgain = true;
+            }
+
+            //draw selected drink
+            this.shapes.drink.draw(context, program_state, drink_transform, this.materials[this.drink_choice]);
+        }
 
         if (this.attached !== undefined) {
             program_state.camera_inverse = this.attached().map((x,i) => Vector.from(program_state.camera_inverse[i]).mix(x, 0.1));
