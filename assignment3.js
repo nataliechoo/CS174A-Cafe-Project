@@ -142,14 +142,16 @@ export class Assignment3 extends Scene {
                 texture: new Texture("assets/espresso.png"),
             }),
         }
+
+
+
         //set up initial POV
         this.initial_camera_location = Mat4.look_at(vec3( 17, 0.25, 40 ), vec3( 0,1,0 ), vec3( 0,6,0 ));
 
         //set up drink making animation flag
         this.makeDrink = false;
         this.drink_choice = "";
-        //idea:
-        // when x is pressed after description of the thing is shown, set makeDrink = true, and setup drink and trigger animation
+        this.magic_sound = false;
 
         //set up static background stars
         this.starPositionsInitialized = false;
@@ -157,6 +159,9 @@ export class Assignment3 extends Scene {
         this.starPositionsFront = [];
         this.starPositionsLeft = [];
         this.starPositionsRight = [];
+
+        //chosen barista
+        this.barista = "miffy";
 
         //Messages
         this.openingMessage = "Greet Baristas [x]"
@@ -167,7 +172,7 @@ export class Assignment3 extends Scene {
         this.selectedMiffyMessage = "You Chose Miffy! [x]";
         this.selectedCapyMessage = "You Chose Capy! [x]";
         this.miffyIntroductionMessage = "Greetings! I'm Miffy!";
-        this.capyIntroductionMessage = "Salutations! I'm Capy!";
+        this.capyIntroductionMessage = "Salutations, student! My name is Capy!";
         this.drinkChoicesMessage = "Please Choose A Drink To Read About!";
         this.drinkOptionGreenTea = "Green tea [G]";
         this.drinkOptionEspresso = "Espresso [E]";
@@ -182,6 +187,7 @@ export class Assignment3 extends Scene {
         this.choseLatte = "Latte coming right up!";
         this.choseEspresso = "Espresso coming right up!";
         this.tryAgain = "Please choose another option";
+        this.brew = "Brew drink! [x]";
 
         //Message flags
         this.showOpeningMessage = true;
@@ -199,6 +205,7 @@ export class Assignment3 extends Scene {
         this.showEspressoSelection = false;
         this.showGreenTeaSelection = false;
         this.showTryAgain = false;
+        this.showBrew = false;
 
         //Needed to display messages letter by letter (one variable needed for each line present per screen)
         this.messageIndex = 0;
@@ -206,10 +213,62 @@ export class Assignment3 extends Scene {
         this.messageIndex3 = 0;
         this.messageIndex4 = 0;
         this.messageIndex5 = 0;
+    }
 
-        //Flags needed for barista animation during drink brewing
-        this.baristaIsMiffy = false;
-        this.baristaIsCapy = false;
+    playsound(barista, sec) {
+        let mSpeak1 = new Audio("./assets/isabelle_one_sec.mp3");
+        let mSpeak2 = new Audio("./assets/isabelle_onehalf_sec.mp3");
+        let mSpeak3 = new Audio("./assets/isabelle_two_sec.mp3");
+        let mSpeak4 = new Audio("./assets/isabelle_two.mp3");
+
+        let cSpeak1 = new Audio("./assets/tn_short.mp3");
+        let cSpeak2 = new Audio("./assets/tn_shortest.mp3");
+        let cSpeak3 = new Audio("./assets/tn_longer2.mp3");
+        let cSpeak4 = new Audio("./assets/tn_short3.mp3");
+
+        let cupView = new Audio("./assets/inspect.mp3");
+        let magic = new Audio("./assets/magic_less_delay.mp3");
+
+
+
+        if (barista === "miffy")
+        {
+            if (sec === 1) {
+                mSpeak1.play();
+            }
+            else if (sec === 2) {
+                mSpeak2.play();
+            }
+            else if (sec === 3) {
+                mSpeak3.play();
+            }
+            else if (sec === 4) {
+                mSpeak4.play();
+            }
+        }
+        else if (barista === "capy") {
+            if (sec === 1) {
+                cSpeak1.play();
+            }
+            else if (sec === 2) {
+                cSpeak2.play();
+            }
+            else if (sec === 3) {
+                cSpeak3.play();
+            }
+            else if (sec === 4) {
+                cSpeak4.play();
+            }
+        }
+        else {
+            if (barista === "inspect") {
+                cupView.play();
+            }
+            else if (barista === "magic") {
+                magic.play();
+            }
+
+        }
 
     }
 
@@ -221,7 +280,11 @@ export class Assignment3 extends Scene {
         this.key_triggered_button("Attach to planet 2", ["Control", "2"], () => this.attached = () => this.planet_2);
         this.new_line();
         this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
-        this.key_triggered_button("Inspect Drink", ["i"], () => this.attached = () => this.drink);
+        this.key_triggered_button("Inspect Drink", ["i"], () => {
+            this.attached = () => this.drink;
+            this.playsound("inspect", 1)
+
+        });
         this.new_line();
         this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
         this.new_line();
@@ -235,27 +298,40 @@ export class Assignment3 extends Scene {
                 this.messageIndex = 0;
                 this.showTryAgain = false;
 
+                this.playsound(this.barista, 1);
+
                 //We can have some boolean to lock the users screen so they have to look at both baristas
 
             } else if (this.showWelcomeMessage) {
                 this.showWelcomeMessage = false;
                 this.showBaristaQuestion = true;
                 this.messageIndex = 0;
+                this.playsound(this.barista, 2);
+
             } else if (this.showSelectedMiffyMessage) {
                 this.showSelectedMiffyMessage = false;
                 this.showMiffyIntroductionMessage = true;
                 this.showDrinkChoicesMessage = true;
                 this.messageIndex = 0;
+                this.barista = "miffy";
+                this.playsound("miffy", 3);
+
             } else if (this.showSelectedCapyMessage) {
                 this.showSelectedCapyMessage = false;
                 this.showCapyIntroductionMessage = true;
                 this.showDrinkChoicesMessage = true;
                 this.messageIndex = 0;
+                this.barista = "capy";
+                this.playsound("capy", 3);
+
             } else if (this.showGreenTeaDescription) {
                 this.showGreenTeaDescription = false;
                 this.showGreenTeaSelection = true; //set up for the selection message
                 this.drink_choice = "greenTea"; //set up for when we want to draw the selected drink
                 this.makeDrink = true;
+
+                this.playsound(this.barista, 2);
+
 
 
                 //Implement logic / booleans to here show drink being created
@@ -273,6 +349,7 @@ export class Assignment3 extends Scene {
                 this.drink_choice = "Espresso"; //set up for when we want to draw the selected drink
                 this.makeDrink = true;
 
+                this.playsound(this.barista, 2);
 
 
                 //Implement logic / booleans to here show drink being created
@@ -290,6 +367,8 @@ export class Assignment3 extends Scene {
                 this.drink_choice = "Latte"; //set up for when we want to draw the selected drink
                 this.makeDrink = true;
 
+                this.playsound(this.barista, 2);
+
 
                 //Implement logic / booleans to here show drink being created
                 //we can make use of the this.baristaIsMiffy or this.baristaIsCapy for animations
@@ -304,6 +383,10 @@ export class Assignment3 extends Scene {
             }
             else if (this.showGreenTeaSelection) {
                 this.choseGreenTea = false;
+                this.showGreenTeaSelection = false;
+                this.magic_sound = true;
+
+                this.playsound(this.barista, 0);
 
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
@@ -313,6 +396,10 @@ export class Assignment3 extends Scene {
             }
             else if (this.showEspressoSelection) {
                 this.choseEspresso = false;
+                this.showEspressoSelection = false;
+                this.magic_sound = true;
+
+                this.playsound(this.barista, 0);
 
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
@@ -321,7 +408,11 @@ export class Assignment3 extends Scene {
                 this.messageIndex5 = 0;
             }
             else if (this.showLatteSelection) {
+                this.showLatteSelection = false;
                 this.choseLatte = false;
+                this.magic_sound = true;
+
+                this.playsound(this.barista, 0);
 
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
@@ -331,14 +422,15 @@ export class Assignment3 extends Scene {
             }
             else if (this.showTryAgain) {
                 this.tryAgain = false;
+
+                this.playsound(this.barista, 1);
+
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
                 this.messageIndex3 = 0;
                 this.messageIndex4 = 0;
                 this.messageIndex5 = 0;
             }
-
-
         });
         this.key_triggered_button("Choose Miffy", ["Shift", "M"], () => {
             if(this.showBaristaQuestion) {
@@ -368,6 +460,8 @@ export class Assignment3 extends Scene {
             if(this.showDrinkChoicesMessage) {
                 this.showDrinkChoicesMessage = false;
                 this.showGreenTeaDescription = true;
+                this.playsound(this.barista, 2);
+
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
                 this.messageIndex3 = 0;
@@ -377,6 +471,9 @@ export class Assignment3 extends Scene {
         });
         this.key_triggered_button("Choose Espresso", ["Shift", "E"], () => {
             if(this.showDrinkChoicesMessage) {
+
+                this.playsound(this.barista, 4);
+
                 this.showDrinkChoicesMessage = false;
                 this.showEspressoDescription = true;
                 this.messageIndex = 0;
@@ -390,6 +487,9 @@ export class Assignment3 extends Scene {
             if(this.showDrinkChoicesMessage) {
                 this.showDrinkChoicesMessage = false;
                 this.showLatteDescription = true;
+
+                this.playsound(this.barista, 2);
+
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
                 this.messageIndex3 = 0;
@@ -399,6 +499,8 @@ export class Assignment3 extends Scene {
         });
         this.key_triggered_button("Back To Drinks", ["Shift", "B"], () => {
             if(this.showGreenTeaDescription || this.showEspressoDescription || this.latteDescription) {
+                this.playsound(this.barista, 3);
+
                 this.showGreenTeaDescription = this.showEspressoDescription = this.showLatteDescription = false;
                 this.showMiffyIntroductionMessage = this.showCapyIntroductionMessage = false;
                 this.showDrinkChoicesMessage = true;
@@ -601,7 +703,6 @@ export class Assignment3 extends Scene {
         cup_view = cup_view.times(Mat4.translation(0,4,0)).times(Mat4.rotation(35.5, .8, 1, 0.99));
         this.drink = Mat4.inverse(cup_view);
 
-
         //Opening message
         if(this.showOpeningMessage){
             let opening_transform = Mat4.identity().times(Mat4.translation(3, 5, 0)).times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25));
@@ -702,7 +803,7 @@ export class Assignment3 extends Scene {
 
         }
 
-
+        //Show drink options
         if(this.showDrinkChoicesMessage){
 
             let introduction_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 22, 0));
@@ -914,8 +1015,11 @@ export class Assignment3 extends Scene {
 
         }
 
+        //Show confirmation
         if(this.showLatteSelection){
             let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            let firstLineDone = false;
 
             if (this.messageIndex < this.choseLatte.length) {
                 this.shapes.text.set_string(this.choseLatte.substring(0, this.messageIndex + 1), context.context);
@@ -924,11 +1028,25 @@ export class Assignment3 extends Scene {
             } else {
                 this.shapes.text.set_string(this.choseLatte, context.context);
                 this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                firstLineDone = true;
+            }
+
+            if (this.messageIndex2 < this.brew.length && firstLineDone) {
+                this.shapes.text.set_string(this.brew.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone){
+                this.shapes.text.set_string(this.brew, context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
             }
 
         }
+
+        //Show confirmation
         if(this.showGreenTeaSelection){
             let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            let firstLineDone = false;
 
             if (this.messageIndex < this.choseGreenTea.length) {
                 this.shapes.text.set_string(this.choseGreenTea.substring(0, this.messageIndex + 1), context.context);
@@ -937,11 +1055,24 @@ export class Assignment3 extends Scene {
             } else {
                 this.shapes.text.set_string(this.choseGreenTea, context.context);
                 this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                firstLineDone = true;
+            }
+
+            if (this.messageIndex2 < this.brew.length && firstLineDone) {
+                this.shapes.text.set_string(this.brew.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone){
+                this.shapes.text.set_string(this.brew, context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
             }
         }
 
+        //Show confirmation
         if(this.showEspressoSelection){
             let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            let firstLineDone = false;
 
             if (this.messageIndex < this.choseEspresso.length) {
                 this.shapes.text.set_string(this.choseEspresso.substring(0, this.messageIndex + 1), context.context);
@@ -950,10 +1081,20 @@ export class Assignment3 extends Scene {
             } else {
                 this.shapes.text.set_string(this.choseEspresso, context.context);
                 this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                firstLineDone = true;
             }
 
+            if (this.messageIndex2 < this.brew.length && firstLineDone) {
+                this.shapes.text.set_string(this.brew.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone){
+                this.shapes.text.set_string(this.brew, context.context);
+                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+            }
         }
 
+        //In case of error
         if(this.showTryAgain){
             let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
 
@@ -989,6 +1130,10 @@ export class Assignment3 extends Scene {
             let drink_transform = cup_transform;
             drink_transform = drink_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.scale(1, 1, 1)).times(Mat4.translation(0,0.05,-1));
 
+            if (this.magic_sound) {
+                this.magic_sound = false
+                this.playsound("magic", 1);
+            }
             //for some reason if the drink choice is not initialized, advise person to go back to selecting
             if (this.drink_choice === "") {
                 this.showTryAgain = true;
