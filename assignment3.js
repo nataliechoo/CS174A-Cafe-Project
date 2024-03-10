@@ -7,6 +7,9 @@ const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture
 } = tiny;
 
+const {Textured_Phong} = defs
+
+
 export class Assignment3 extends Scene {
     constructor() {
         // constructor(): Scenes begin by populating initial values like the Shapes and Materials they'll need.
@@ -36,6 +39,7 @@ export class Assignment3 extends Scene {
             wallsAndFloor: new Shape_From_File("./assets/wallsAndFloor.obj"),
             sky: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(4),
             text: new Text_Line(50),
+            drink: new defs.Regular_2D_Polygon(1, 15),
         };
 
         // *** Materials
@@ -107,12 +111,12 @@ export class Assignment3 extends Scene {
                 specularity: 50,
                 color: hex_color("#EAEAEA")
             }),
-            wallsAndFloor: new Material(new defs.Phong_Shader(), {
+            wallsAndFloor: new Material(new defs.Textured_Phong(), {
                 ambient: 0.6,
-                diffusivity: 1,
+                // diffusivity: 1,
                 color: hex_color("#898aa3"),
-                specularity: 0.1,
-                //texture: new Texture("./assets/Textures/woolTexture.png")
+                // specularity: 0.1,
+                texture: new Texture("assets/87.jpg")
             }),
             sky: new Material(new defs.Phong_Shader(), {
                 ambient: 0.9,
@@ -125,10 +129,18 @@ export class Assignment3 extends Scene {
                 color: hex_color("#000000"),
                 texture: new Texture("assets/text.png"),
             }),
-
+            greenTea: new Material(new defs.Textured_Phong(), {
+                ambient: 1,
+                color: hex_color("#000000"),
+                //WHY IS THIS GOING BLACK SCREEN WHENEVER I USE THE CLOSE UP VERSION ????????
+                texture: new Texture("assets/gttop.png"),
+            }),
         }
-        //setup initial POV
+        //set up initial POV
         this.initial_camera_location = Mat4.look_at(vec3( 17, 0.25, 40 ), vec3( 0,1,0 ), vec3( 0,6,0 ));
+
+        //set up drink making animation flag
+        this.makeDrink = true;
 
         //set up static background stars
         this.starPositionsInitialized = false;
@@ -192,7 +204,7 @@ export class Assignment3 extends Scene {
         this.key_triggered_button("Attach to planet 2", ["Control", "2"], () => this.attached = () => this.planet_2);
         this.new_line();
         this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
-        this.key_triggered_button("Attach to planet 4", ["Control", "4"], () => this.attached = () => this.planet_4);
+        this.key_triggered_button("Inspect Drink", ["Control", "I"], () => this.attached = () => this.drink);
         this.new_line();
         this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
         this.new_line();
@@ -481,7 +493,10 @@ export class Assignment3 extends Scene {
 
         this.display_obj(context, program_state, moon_transform, "moon");
         this.display_obj(context, program_state, cloudCounter_transform, "cloudCounter");
-        this.display_obj(context, program_state, wallsAndFloor_transform, "wallsAndFloor");
+        // this.shapes.cloudCounter.draw(context, program_state, cloudCounter_transform, this.materials.cloudCounter);
+        this.shapes.wallsAndFloor.draw(context, program_state, wallsAndFloor_transform, this.materials.wallsAndFloor);
+
+        // this.display_obj(context, program_state, wallsAndFloor_transform, "wallsAndFloor");
 
         //Draw Night Sky
         let sky_placement = model_transform;
@@ -509,6 +524,10 @@ export class Assignment3 extends Scene {
         let cup_transform = model_transform;
         cup_transform = cup_transform.times(Mat4.scale(0.5, 0.5, 0.5)).times(Mat4.translation(7, 0, -3));
         this.display_obj(context, program_state, cup_transform, "cup");
+        let cup_view = cup_transform;
+        cup_view = cup_view.times(Mat4.translation(0,4,0)).times(Mat4.rotation(35.5, .8, 1, 0.99));
+        this.drink = Mat4.inverse(cup_view);
+
 
         //Opening message
         if(this.showOpeningMessage){
@@ -838,6 +857,13 @@ export class Assignment3 extends Scene {
 
         //Draw Background Stars
         this.drawStars(context, program_state, background_stars);
+
+        if (this.makeDrink) {
+            let gt_transform = cup_transform;
+            gt_transform = gt_transform.times(Mat4.rotation(190, 1, 0, 0)).times(Mat4.scale(.75, .75, .75)).times(Mat4.translation(0,0,-1.2));
+            this.shapes.drink.draw(context, program_state, gt_transform, this.materials.greenTea);
+        }
+
 
         if (this.attached !== undefined) {
             program_state.camera_inverse = this.attached().map((x,i) => Vector.from(program_state.camera_inverse[i]).mix(x, 0.1));
