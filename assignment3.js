@@ -111,12 +111,12 @@ export class Assignment3 extends Scene {
                 specularity: 50,
                 color: hex_color("#EAEAEA")
             }),
-            wallsAndFloor: new Material(new defs.Textured_Phong(), {
+            wallsAndFloor: new Material(new defs.Phong_Shader(), {
                 ambient: 0.6,
                 // diffusivity: 1,
                 color: hex_color("#898aa3"),
                 // specularity: 0.1,
-                texture: new Texture("assets/87.jpg")
+                //texture: new Texture("assets/87.jpg")
             }),
             sky: new Material(new defs.Phong_Shader(), {
                 ambient: 0.9,
@@ -131,9 +131,9 @@ export class Assignment3 extends Scene {
             }),
             greenTea: new Material(new defs.Textured_Phong(), {
                 ambient: 1,
-                color: hex_color("#000000"),
+                //color: hex_color("#FFFFFF"),
                 //WHY IS THIS GOING BLACK SCREEN WHENEVER I USE THE CLOSE UP VERSION ????????
-                texture: new Texture("assets/gttop.png"),
+                texture: new Texture("assets/removedTea2.png"),
             }),
         }
         //set up initial POV
@@ -141,6 +141,8 @@ export class Assignment3 extends Scene {
 
         //set up drink making animation flag
         this.makeDrink = true;
+        //idea:
+        // when x is pressed after description of the thing is shown, set makeDrink = true, and setup drink and trigger animation
 
         //set up static background stars
         this.starPositionsInitialized = false;
@@ -169,6 +171,9 @@ export class Assignment3 extends Scene {
         this.latteDescription = "Latte gives you vitality!";
         this.confirmDrinkChoiceMessage = "Choose this drink [x]";
         this.backToDrinkChoicesMessage = "Choose another drink [B]";
+        this.choseGreenTea = "Green tea coming right up!";
+        this.choseLatte = "Latte coming right up!";
+        this.choseEspresso = "Espresso coming right up!"
 
         //Message flags
         this.showOpeningMessage = true;
@@ -182,6 +187,9 @@ export class Assignment3 extends Scene {
         this.showGreenTeaDescription = false;
         this.showEspressoDescription = false;
         this.showLatteDescription = false;
+        this.showLatteSelection = false;
+        this.showEspressoSelection = false;
+        this.showGreenTeaSelection = false;
 
         //Needed to display messages letter by letter (one variable needed for each line present per screen)
         this.messageIndex = 0;
@@ -235,6 +243,8 @@ export class Assignment3 extends Scene {
                 this.messageIndex = 0;
             } else if (this.showGreenTeaDescription) {
                 this.showGreenTeaDescription = false;
+                this.showGreenTeaSelection = true;
+
 
                 //Implement logic / booleans to here show drink being created
                 //we can make use of the this.baristaIsMiffy or this.baristaIsCapy for animations
@@ -247,6 +257,8 @@ export class Assignment3 extends Scene {
 
             } else if (this.showEspressoDescription) {
                 this.showEspressoDescription = false;
+                this.showEspressoSelection = true;
+
 
                 //Implement logic / booleans to here show drink being created
                 //we can make use of the this.baristaIsMiffy or this.baristaIsCapy for animations
@@ -259,9 +271,12 @@ export class Assignment3 extends Scene {
 
             } else if (this.showLatteDescription) {
                 this.showLatteDescription = false;
+                this.showLatteSelection = true;
+
 
                 //Implement logic / booleans to here show drink being created
                 //we can make use of the this.baristaIsMiffy or this.baristaIsCapy for animations
+
 
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
@@ -270,6 +285,34 @@ export class Assignment3 extends Scene {
                 this.messageIndex5 = 0;
 
             }
+            else if (this.showGreenTeaSelection) {
+                this.choseGreenTea = false;
+
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+            }
+            else if (this.showEspressoSelection) {
+                this.choseEspresso = false;
+
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+            }
+            else if (this.showLatteSelection) {
+                this.choseLatte = false;
+
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+                this.messageIndex3 = 0;
+                this.messageIndex4 = 0;
+                this.messageIndex5 = 0;
+            }
+
 
         });
         this.key_triggered_button("Choose Miffy", ["Shift", "M"], () => {
@@ -841,6 +884,45 @@ export class Assignment3 extends Scene {
 
         }
 
+        if(this.showLatteSelection){
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+
+            if (this.messageIndex < this.choseLatte.length) {
+                this.shapes.text.set_string(this.choseLatte.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.choseLatte, context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+            }
+
+        }
+        if(this.showGreenTeaSelection){
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+
+            if (this.messageIndex < this.choseGreenTea.length) {
+                this.shapes.text.set_string(this.choseGreenTea.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.choseGreenTea, context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+            }
+        }
+
+        if(this.showEspressoSelection){
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+
+            if (this.messageIndex < this.choseEspresso.length) {
+                this.shapes.text.set_string(this.choseEspresso.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.choseEspresso, context.context);
+                this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
+            }
+
+        }
 
         // Draw Rotating Star
         let star_transform = model_transform;
@@ -860,7 +942,7 @@ export class Assignment3 extends Scene {
 
         if (this.makeDrink) {
             let gt_transform = cup_transform;
-            gt_transform = gt_transform.times(Mat4.rotation(190, 1, 0, 0)).times(Mat4.scale(.75, .75, .75)).times(Mat4.translation(0,0,-1.2));
+            gt_transform = gt_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.scale(1.1, 1.1, 1.1)).times(Mat4.translation(0,0.05,-1));
             this.shapes.drink.draw(context, program_state, gt_transform, this.materials.greenTea);
         }
 
