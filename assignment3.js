@@ -78,7 +78,8 @@ export class Assignment3 extends Scene {
             cup: new Material(new defs.Phong_Shader(), {
                 ambient: 1,
                 diffusivity: 0.1,
-                color: hex_color("#bfb891")
+                color: hex_color("#3b1327")
+                //bfb891
             }),
             cafe: new Material(new defs.Phong_Shader(), {
                 ambient: 0.6,
@@ -144,7 +145,6 @@ export class Assignment3 extends Scene {
         }
 
 
-
         //set up initial POV
         this.initial_camera_location = Mat4.look_at(vec3( 17, 0.25, 40 ), vec3( 0,1,0 ), vec3( 0,6,0 ));
 
@@ -152,6 +152,7 @@ export class Assignment3 extends Scene {
         this.makeDrink = false;
         this.drink_choice = "";
         this.magic_sound = false;
+        this.starMaxSize = false;
 
         //set up static background stars
         this.starPositionsInitialized = false;
@@ -228,6 +229,7 @@ export class Assignment3 extends Scene {
         //Needed for the star animation
         this.showStarGrowing = false;
         this.showStar = true;
+        this.lockStar = false;
     }
 
     playsound(barista, sec) {
@@ -686,6 +688,8 @@ export class Assignment3 extends Scene {
     }
     display(context, program_state) {
         let t = program_state.animation_time / 1000;
+        let t_delay = t;
+        t_delay = t_delay + 3;
 
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
         if (!context.scratchpad.controls) {
@@ -1136,8 +1140,6 @@ export class Assignment3 extends Scene {
         //Show confirmation
         if(this.showEspressoSelection){
             let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
-            // let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
-            // let firstLineDone = false;
 
             if (this.messageIndex < this.choseEspresso.length) {
                 this.shapes.text.set_string(this.choseEspresso.substring(0, this.messageIndex + 1), context.context);
@@ -1146,7 +1148,6 @@ export class Assignment3 extends Scene {
             } else {
                 this.shapes.text.set_string(this.choseEspresso, context.context);
                 this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
-                //firstLineDone = true;
             }
 
         }
@@ -1176,18 +1177,29 @@ export class Assignment3 extends Scene {
         var star_rotation = 5 * Math.sin((1.3*t));
         var star_height = Math.abs(Math.sin(t));
 
-        if(this.showStarGrowing){
-        star_rotation = Math.exp(0.4 * t);
-            if(star_size > 0.39){
+        //if it is in process of growing, lock once it reaches max
+        if(this.showStar && this.showStarGrowing && !this.lockStar){
+            star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
+            if (star_size >0.39) {
                 this.starMaxSize = true;
                 this.showGrabStarMessage = true;
-                // frozen_transform = star_transform.times(Mat4.translation(0, star_height, 0));
+                this.lockStar = true;
             }
+            this.display_obj(context, program_state, star_transform, "specialStar");
+        }
+        //if just normal idle animation, display it normally
+        else if (this.showStar && !this.showStarGrowing && !this.lockStar) {
+            star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
+            this.display_obj(context, program_state, star_transform, "specialStar");
         }
 
-        star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
-
-        if(this.showStar){
+        //reached max size, lock it!
+        if(this.lockStar && this.showStar)
+        {
+            let star_locked = model_transform;
+            star_locked = star_locked.times(Mat4.translation(2,1.3,2)).times(Mat4.scale(0.4, 0.4, 0.4));
+            star_transform = star_locked.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
+            // this.shapes.specialStar.draw(context, program_state, star_transform, this.materials.specialStar));
             this.display_obj(context, program_state, star_transform, "specialStar");
         }
 
@@ -1221,14 +1233,6 @@ export class Assignment3 extends Scene {
 
         //Draw Background Stars
         this.drawStars(context, program_state, background_stars);
-
-        //TESTER
-        // let drink_transform = cup_transform;
-        // // drink_transform = drink_transform.times(Mat4.rotation(Math.max(0, Math.sin(t))));
-        // // drink_transform = drink_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.rotation(Math.max(0, Math.sin(t)))).times(Mat4.scale(1, 1, 1)).times(Mat4.translation(0,0.05,-1));
-        // drink_transform = drink_transform.times(Mat4.rotation(190.05, 1, 0, 0)).times(Mat4.rotation(Math.abs(Math.sin(0.2*t)), 0, 0, 1)).times(Mat4.scale(1, 1, 1)).times(Mat4.translation(0,0.05,-1));
-
-        // this.shapes.drink.draw(context, program_state, drink_transform, this.materials["Espresso"]);
 
         if (this.makeDrink) {
             //start creating the drink
