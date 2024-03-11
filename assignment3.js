@@ -183,10 +183,16 @@ export class Assignment3 extends Scene {
         this.latteDescription = "Latte gives you vitality!";
         this.confirmDrinkChoiceMessage = "Choose this drink [x]";
         this.backToDrinkChoicesMessage = "Choose another drink [B]";
-        this.choseGreenTea = "Green tea coming right up!";
-        this.choseLatte = "Latte coming right up!";
-        this.choseEspresso = "Espresso coming right up!";
+        this.paymentMessage1 = "One star is needed to brew!";
+        this.paymentMessage2 = "Collect the star once it has grown! [x]";
+        this.choseGreenTea = "Green tea coming right up! [x]";
+        this.choseLatte = "Latte coming right up! [x]";
+        this.choseEspresso = "Espresso coming right up! [x]";
         this.tryAgain = "Please choose another option";
+        this.grabStarMessage = "Claim star [S]";
+        this.giveStarMessage = "Give star to barista [x]";
+        this.drinkFinishedMessage1 = "Your order is complete!";
+        this.drinkFinishedMessage2 = "Inspect your drink! [i]";
         this.brew = "Brew drink! [x]";
 
         //Message flags
@@ -201,11 +207,16 @@ export class Assignment3 extends Scene {
         this.showGreenTeaDescription = false;
         this.showEspressoDescription = false;
         this.showLatteDescription = false;
+        this.showPaymentMessage = false;
         this.showLatteSelection = false;
         this.showEspressoSelection = false;
         this.showGreenTeaSelection = false;
         this.showTryAgain = false;
+        this.showGrabStarMessage = false;
+        this.showGiveStarMessage = false;
+        this.showDrinkFinishedMessage = false;
         this.showBrew = false;
+
 
         //Needed to display messages letter by letter (one variable needed for each line present per screen)
         this.messageIndex = 0;
@@ -213,6 +224,10 @@ export class Assignment3 extends Scene {
         this.messageIndex3 = 0;
         this.messageIndex4 = 0;
         this.messageIndex5 = 0;
+
+        //Needed for the star animation
+        this.showStarGrowing = false;
+        this.showStar = true;
     }
 
     playsound(barista, sec) {
@@ -297,9 +312,11 @@ export class Assignment3 extends Scene {
         this.new_line();
         this.key_triggered_button("Next Message/Reset View", ["x"], () => {
             //set up view for when interacting with employees
-            this.attached = () => this.cloudCounter;
+            //this.attached = () => this.cloudCounter;
 
             if(this.showOpeningMessage) {
+                this.attached = () => this.cloudCounter;
+
                 this.showOpeningMessage = false;
                 this.showWelcomeMessage = true;
                 this.messageIndex = 0;
@@ -333,13 +350,11 @@ export class Assignment3 extends Scene {
 
             } else if (this.showGreenTeaDescription) {
                 this.showGreenTeaDescription = false;
-                this.showGreenTeaSelection = true; //set up for the selection message
+                //this.showGreenTeaSelection = true; //set up for the selection message
+                this.showPaymentMessage = true;
                 this.drink_choice = "greenTea"; //set up for when we want to draw the selected drink
-                this.makeDrink = true;
 
                 this.playsound(this.barista, 2);
-
-
 
                 //Implement logic / booleans to here show drink being created
                 //we can make use of the this.baristaIsMiffy or this.baristaIsCapy for animations
@@ -352,9 +367,10 @@ export class Assignment3 extends Scene {
 
             } else if (this.showEspressoDescription) {
                 this.showEspressoDescription = false;
-                this.showEspressoSelection = true; //set up for the selection message
+                //this.showEspressoSelection = true; //set up for the selection message
+                this.showPaymentMessage = true;
                 this.drink_choice = "Espresso"; //set up for when we want to draw the selected drink
-                this.makeDrink = true;
+                //this.makeDrink = true;
 
                 this.playsound(this.barista, 2);
 
@@ -370,17 +386,16 @@ export class Assignment3 extends Scene {
 
             } else if (this.showLatteDescription) {
                 this.showLatteDescription = false;
-                this.showLatteSelection = true; //set up for the selection message
+                //this.showLatteSelection = true; //set up for the selection message
+                this.showPaymentMessage = true;
                 this.drink_choice = "Latte"; //set up for when we want to draw the selected drink
-                this.makeDrink = true;
+                //this.makeDrink = true;
 
                 this.playsound(this.barista, 2);
-
 
                 //Implement logic / booleans to here show drink being created
                 //we can make use of the this.baristaIsMiffy or this.baristaIsCapy for animations
 
-
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
                 this.messageIndex3 = 0;
@@ -388,44 +403,18 @@ export class Assignment3 extends Scene {
                 this.messageIndex5 = 0;
 
             }
-            else if (this.showGreenTeaSelection) {
-                this.choseGreenTea = false;
-                this.showGreenTeaSelection = false;
-                this.magic_sound = true;
+            else if (this.showPaymentMessage){
+                this.attached = () => this.centralStar;
 
-                this.playsound(this.barista, 0);
+                this.showPaymentMessage = false;
 
-                this.messageIndex = 0;
-                this.messageIndex2 = 0;
-                this.messageIndex3 = 0;
-                this.messageIndex4 = 0;
-                this.messageIndex5 = 0;
-            }
-            else if (this.showEspressoSelection) {
-                this.choseEspresso = false;
-                this.showEspressoSelection = false;
-                this.magic_sound = true;
-
-                this.playsound(this.barista, 0);
+                this.showStarGrowing = true;
 
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
-                this.messageIndex3 = 0;
-                this.messageIndex4 = 0;
-                this.messageIndex5 = 0;
-            }
-            else if (this.showLatteSelection) {
-                this.showLatteSelection = false;
-                this.choseLatte = false;
-                this.magic_sound = true;
 
-                this.playsound(this.barista, 0);
+                this.playsound("magic", 3);
 
-                this.messageIndex = 0;
-                this.messageIndex2 = 0;
-                this.messageIndex3 = 0;
-                this.messageIndex4 = 0;
-                this.messageIndex5 = 0;
             }
             else if (this.showTryAgain) {
                 this.tryAgain = false;
@@ -437,6 +426,37 @@ export class Assignment3 extends Scene {
                 this.messageIndex3 = 0;
                 this.messageIndex4 = 0;
                 this.messageIndex5 = 0;
+            }
+            else if (this.showGiveStarMessage){
+                this.showGiveStarMessage = false;
+
+                if(this.drink_choice === "greenTea"){
+                    this.showGreenTeaSelection = true;
+                } else if (this.drink_choice === "Espresso"){
+                    this.showEspressoSelection = true;
+                } else if (this.drink_choice === "Latte"){
+                    this.showLatteSelection = true;
+                }
+
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+
+                this.playsound(this.barista, 2);
+
+                //this.makeDrink = true;
+            }
+            else if (this.showGreenTeaSelection || this.showEspressoSelection || this.showLatteSelection){
+                this.showGreenTeaSelection = this.showEspressoSelection = this.showLatteSelection = false;
+
+                this.showDrinkFinishedMessage = true;
+
+                this.makeDrink = true;
+
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+
+                this.playsound(this.barista, 2);
+
             }
         });
         this.key_triggered_button("Choose Miffy", ["Shift", "M"], () => {
@@ -523,6 +543,24 @@ export class Assignment3 extends Scene {
                 this.messageIndex5 = 0;
             }
             this.attached = () => this.cloudCounter;
+
+        });
+        this.key_triggered_button("Claim Star", ["Shift", "S"], () => {
+            if(this.showGrabStarMessage) {
+                //this.playsound(this.barista, 3);
+
+                this.showGrabStarMessage = false;
+                this.showStarGrowing = false;
+                this.showStar = false;
+
+                this.messageIndex = 0;
+                this.messageIndex2 = 0;
+
+                this.attached = () => this.cloudCounter;
+
+                this.showGiveStarMessage = true;
+            }
+
 
         });
     }
@@ -657,6 +695,10 @@ export class Assignment3 extends Scene {
         }
 
         let talking_offset_and_rotation = Mat4.rotation(0.5, 0, 1, 0).times(Mat4.translation(3,1.4,15));
+        let starBrewing_offset_and_rotation = Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.translation(-2,1.5,5));
+        let talking_to_Miffy_transform = Mat4.rotation(0.5, 0, 1, 0).times(Mat4.translation(3,1.4,8));
+        let talking_to_Capy_transform = Mat4.rotation(0.5, 0, 1, 0).times(Mat4.translation(5,1.4,8));
+
 
         //set up basic overhead light
         program_state.lights = [new Light(vec4(50,600,250,1), hex_color("#f3d9fc"), 65000000)];
@@ -674,6 +716,9 @@ export class Assignment3 extends Scene {
         wallsAndFloor_transform = wallsAndFloor_transform.times(Mat4.rotation(180,0,1 , 0)).times(Mat4.translation(-3,1.8,5)).times(Mat4.scale(16,12.5,12.5));
 
         this.cloudCounter = Mat4.inverse(talking_offset_and_rotation);
+        this.centralStar = Mat4.inverse(starBrewing_offset_and_rotation);
+        this.talkingToMiffy = Mat4.inverse(talking_to_Miffy_transform);
+        this.talkingToCapy = Mat4.inverse(talking_to_Capy_transform);
 
         this.display_obj(context, program_state, moon_transform, "moon");
         this.display_obj(context, program_state, cloudCounter_transform, "cloudCounter");
@@ -1024,11 +1069,39 @@ export class Assignment3 extends Scene {
 
         }
 
+        //User is prompted to provide a star
+        if(this.showPaymentMessage){
+            let payment1_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(-2, 24, 0));
+            let payment2_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(-2, 20, 0));
+            let firstLineDone = false;
+
+            if (this.messageIndex < this.paymentMessage1.length) {
+                this.shapes.text.set_string(this.paymentMessage1.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, payment1_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.paymentMessage1, context.context);
+                this.shapes.text.draw(context, program_state, payment1_transform, this.materials.text);
+                firstLineDone = true;
+            }
+
+            if (this.messageIndex2 < this.paymentMessage2.length && firstLineDone) {
+                this.shapes.text.set_string(this.paymentMessage2.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, payment2_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone){
+                this.shapes.text.set_string(this.paymentMessage2, context.context);
+                this.shapes.text.draw(context, program_state, payment2_transform, this.materials.text);
+            }
+
+        }
+
+
         //Show confirmation
         if(this.showLatteSelection){
             let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
-            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
-            let firstLineDone = false;
+            // let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            // let firstLineDone = false;
 
             if (this.messageIndex < this.choseLatte.length) {
                 this.shapes.text.set_string(this.choseLatte.substring(0, this.messageIndex + 1), context.context);
@@ -1037,25 +1110,16 @@ export class Assignment3 extends Scene {
             } else {
                 this.shapes.text.set_string(this.choseLatte, context.context);
                 this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
-                firstLineDone = true;
-            }
-
-            if (this.messageIndex2 < this.brew.length && firstLineDone) {
-                this.shapes.text.set_string(this.brew.substring(0, this.messageIndex2 + 1), context.context);
-                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
-                this.messageIndex2++;
-            } else if (firstLineDone){
-                this.shapes.text.set_string(this.brew, context.context);
-                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
+                //firstLineDone = true;
             }
 
         }
 
         //Show confirmation
         if(this.showGreenTeaSelection){
-            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
-            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
-            let firstLineDone = false;
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            // let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            // let firstLineDone = false;
 
             if (this.messageIndex < this.choseGreenTea.length) {
                 this.shapes.text.set_string(this.choseGreenTea.substring(0, this.messageIndex + 1), context.context);
@@ -1064,24 +1128,16 @@ export class Assignment3 extends Scene {
             } else {
                 this.shapes.text.set_string(this.choseGreenTea, context.context);
                 this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
-                firstLineDone = true;
+                //firstLineDone = true;
             }
 
-            if (this.messageIndex2 < this.brew.length && firstLineDone) {
-                this.shapes.text.set_string(this.brew.substring(0, this.messageIndex2 + 1), context.context);
-                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
-                this.messageIndex2++;
-            } else if (firstLineDone){
-                this.shapes.text.set_string(this.brew, context.context);
-                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
-            }
         }
 
         //Show confirmation
         if(this.showEspressoSelection){
-            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
-            let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
-            let firstLineDone = false;
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            // let confirmation_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            // let firstLineDone = false;
 
             if (this.messageIndex < this.choseEspresso.length) {
                 this.shapes.text.set_string(this.choseEspresso.substring(0, this.messageIndex + 1), context.context);
@@ -1090,22 +1146,14 @@ export class Assignment3 extends Scene {
             } else {
                 this.shapes.text.set_string(this.choseEspresso, context.context);
                 this.shapes.text.draw(context, program_state, description_transform, this.materials.text);
-                firstLineDone = true;
+                //firstLineDone = true;
             }
 
-            if (this.messageIndex2 < this.brew.length && firstLineDone) {
-                this.shapes.text.set_string(this.brew.substring(0, this.messageIndex2 + 1), context.context);
-                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
-                this.messageIndex2++;
-            } else if (firstLineDone){
-                this.shapes.text.set_string(this.brew, context.context);
-                this.shapes.text.draw(context, program_state, confirmation_transform, this.materials.text);
-            }
         }
 
         //In case of error
         if(this.showTryAgain){
-            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+            let description_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
 
             if (this.messageIndex < this.tryAgain.length) {
                 this.shapes.text.set_string(this.tryAgain.substring(0, this.messageIndex + 1), context.context);
@@ -1128,8 +1176,48 @@ export class Assignment3 extends Scene {
         var star_rotation = 5 * Math.sin((1.3*t));
         var star_height = Math.abs(Math.sin(t));
 
+        if(this.showStarGrowing){
+        star_rotation = Math.exp(0.4 * t);
+            if(star_size > 0.39){
+                this.starMaxSize = true;
+                this.showGrabStarMessage = true;
+                // frozen_transform = star_transform.times(Mat4.translation(0, star_height, 0));
+            }
+        }
+
         star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
-        this.display_obj(context, program_state, star_transform, "specialStar");
+
+        if(this.showStar){
+            this.display_obj(context, program_state, star_transform, "specialStar");
+        }
+
+        if(this.showGrabStarMessage){
+            let grabStar_transform = Mat4.identity().times(Mat4.rotation(85 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(-4.5, 18, -15));
+
+            if (this.messageIndex < this.grabStarMessage.length) {
+                this.shapes.text.set_string(this.grabStarMessage.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, grabStar_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.grabStarMessage, context.context);
+                this.shapes.text.draw(context, program_state, grabStar_transform, this.materials.text);
+            }
+
+        }
+
+        if(this.showGiveStarMessage){
+            let giveStar_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+
+            if (this.messageIndex < this.giveStarMessage.length) {
+                this.shapes.text.set_string(this.giveStarMessage.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, giveStar_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.giveStarMessage, context.context);
+                this.shapes.text.draw(context, program_state, giveStar_transform, this.materials.text);
+            }
+
+        }
 
         //Draw Background Stars
         this.drawStars(context, program_state, background_stars);
@@ -1159,6 +1247,32 @@ export class Assignment3 extends Scene {
 
             //draw selected drink
             this.shapes.drink.draw(context, program_state, drink_transform, this.materials[this.drink_choice]);
+        }
+
+        if(this.showDrinkFinishedMessage){
+            let finished1_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 24, 0));
+            let finished2_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 20, 0));
+            let firstLineDone = false;
+
+            if (this.messageIndex < this.drinkFinishedMessage1.length) {
+                this.shapes.text.set_string(this.drinkFinishedMessage1.substring(0, this.messageIndex + 1), context.context);
+                this.shapes.text.draw(context, program_state, finished1_transform, this.materials.text);
+                this.messageIndex++;
+            } else {
+                this.shapes.text.set_string(this.drinkFinishedMessage1, context.context);
+                this.shapes.text.draw(context, program_state, finished1_transform, this.materials.text);
+                firstLineDone = true;
+            }
+
+            if (this.messageIndex2 < this.drinkFinishedMessage2.length && firstLineDone) {
+                this.shapes.text.set_string(this.drinkFinishedMessage2.substring(0, this.messageIndex2 + 1), context.context);
+                this.shapes.text.draw(context, program_state, finished2_transform, this.materials.text);
+                this.messageIndex2++;
+            } else if (firstLineDone){
+                this.shapes.text.set_string(this.drinkFinishedMessage2, context.context);
+                this.shapes.text.draw(context, program_state, finished2_transform, this.materials.text);
+            }
+
         }
 
         if (this.attached !== undefined) {
