@@ -40,6 +40,8 @@ export class Assignment3 extends Scene {
             sky: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(4),
             text: new Text_Line(50),
             drink: new defs.Regular_2D_Polygon(1, 15),
+            cafeSign: new Shape_From_File("./assets/lunarCafe.obj"),
+
         };
 
         // *** Materials
@@ -230,6 +232,9 @@ export class Assignment3 extends Scene {
         this.showStarGrowing = false;
         this.showStar = true;
         this.lockStar = false;
+
+        //bgm
+        this.bgm_playing = false;
     }
 
     playsound(barista, sec) {
@@ -246,7 +251,12 @@ export class Assignment3 extends Scene {
         let cupView = new Audio("./assets/inspect.mp3");
         let magic = new Audio("./assets/magic_less_delay.mp3");
 
+        let bgm = new Audio("./assets/bgmQuieter.mp3");
 
+        if(!this.bgm_playing && (barista === "bgm") && (sec === 99))
+        {
+            bgm.play();
+        }
 
         if (barista === "miffy")
         {
@@ -314,8 +324,11 @@ export class Assignment3 extends Scene {
         this.new_line();
         this.key_triggered_button("Next Message/Reset View", ["x"], () => {
             //set up view for when interacting with employees
-            //this.attached = () => this.cloudCounter;
 
+            if(!this.bgm_playing) {
+                this.playsound("bgm", 99);
+                this.bgm_playing = true;
+            }
             if(this.showOpeningMessage) {
                 this.attached = () => this.cloudCounter;
 
@@ -529,7 +542,7 @@ export class Assignment3 extends Scene {
             }
         });
         this.key_triggered_button("Back To Drinks", ["Shift", "B"], () => {
-            if(this.showGreenTeaDescription || this.showEspressoDescription || this.latteDescription) {
+            if((this.showGreenTeaDescription || this.showEspressoDescription || this.latteDescription) && (!this.showDrinkFinishedMessage)) {
                 this.playsound(this.barista, 3);
 
                 this.showGreenTeaDescription = this.showEspressoDescription = this.showLatteDescription = false;
@@ -544,6 +557,7 @@ export class Assignment3 extends Scene {
                 this.messageIndex4 = 0;
                 this.messageIndex5 = 0;
             }
+
             this.attached = () => this.cloudCounter;
 
         });
@@ -703,6 +717,13 @@ export class Assignment3 extends Scene {
         let talking_to_Miffy_transform = Mat4.rotation(0.5, 0, 1, 0).times(Mat4.translation(3,1.4,8));
         let talking_to_Capy_transform = Mat4.rotation(0.5, 0, 1, 0).times(Mat4.translation(5,1.4,8));
 
+        // this.playsound("bgm", 99);
+        //
+        // if (!this.bgm_playing) {
+        //     this.playsound("bgm", 99);
+        //     this.bgm_playing = true;
+        // }
+
 
         //set up basic overhead light
         program_state.lights = [new Light(vec4(50,600,250,1), hex_color("#f3d9fc"), 65000000)];
@@ -726,10 +747,8 @@ export class Assignment3 extends Scene {
 
         this.display_obj(context, program_state, moon_transform, "moon");
         this.display_obj(context, program_state, cloudCounter_transform, "cloudCounter");
-        // this.shapes.cloudCounter.draw(context, program_state, cloudCounter_transform, this.materials.cloudCounter);
         this.shapes.wallsAndFloor.draw(context, program_state, wallsAndFloor_transform, this.materials.wallsAndFloor);
 
-        // this.display_obj(context, program_state, wallsAndFloor_transform, "wallsAndFloor");
 
         //Draw Night Sky
         let sky_placement = model_transform;
@@ -1177,6 +1196,8 @@ export class Assignment3 extends Scene {
         var star_rotation = 5 * Math.sin((1.3*t));
         var star_height = Math.abs(Math.sin(t));
 
+
+
         //if it is in process of growing, lock once it reaches max
         if(this.showStar && this.showStarGrowing && !this.lockStar){
             star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
@@ -1230,6 +1251,13 @@ export class Assignment3 extends Scene {
             }
 
         }
+
+        //draw sign
+        let sign_transform = cloudCounter_transform;
+        var sign_height = 0.05*(Math.sin(t+3));
+        sign_transform = cloudCounter_transform.times(Mat4.translation(0, -3, -3.5)).times(Mat4.scale(3,3,3)).times(Mat4.translation(0, 2.2, 1.5));
+        sign_transform = sign_transform.times(Mat4.translation(0, sign_height, 0));
+        this.shapes.cafeSign.draw(context, program_state, sign_transform, this.materials.cloudCounter);
 
         //Draw Background Stars
         this.drawStars(context, program_state, background_stars);
