@@ -196,7 +196,6 @@ export class Assignment3 extends Scene {
         this.giveStarMessage = "Give star to barista [x]";
         this.drinkFinishedMessage1 = "Your order is complete!";
         this.drinkFinishedMessage2 = "Inspect your drink! [i]";
-        this.brew = "Brew drink! [x]";
 
         //Message flags
         this.showOpeningMessage = true;
@@ -218,7 +217,9 @@ export class Assignment3 extends Scene {
         this.showGrabStarMessage = false;
         this.showGiveStarMessage = false;
         this.showDrinkFinishedMessage = false;
-        this.showBrew = false;
+
+        // Barista should face star when it is doing the special animation
+        this.faceStar = false;
 
 
         //Needed to display messages letter by letter (one variable needed for each line present per screen)
@@ -350,6 +351,8 @@ export class Assignment3 extends Scene {
                 this.showMiffyIntroductionMessage = true;
                 this.showDrinkChoicesMessage = true;
                 this.messageIndex = 0;
+                this.showMiffyJumping = false;
+
                 this.barista = "miffy";
                 this.playsound("miffy", 3);
 
@@ -357,15 +360,17 @@ export class Assignment3 extends Scene {
                 this.showSelectedCapyMessage = false;
                 this.showCapyIntroductionMessage = true;
                 this.showDrinkChoicesMessage = true;
+                this.showCapyJumping = false;
                 this.messageIndex = 0;
                 this.barista = "capy";
                 this.playsound("capy", 3);
 
             } else if (this.showGreenTeaDescription) {
                 this.showGreenTeaDescription = false;
-                //this.showGreenTeaSelection = true; //set up for the selection message
                 this.showPaymentMessage = true;
                 this.drink_choice = "greenTea"; //set up for when we want to draw the selected drink
+                this.faceStar = true;
+
 
                 this.playsound(this.barista, 2);
 
@@ -380,10 +385,9 @@ export class Assignment3 extends Scene {
 
             } else if (this.showEspressoDescription) {
                 this.showEspressoDescription = false;
-                //this.showEspressoSelection = true; //set up for the selection message
                 this.showPaymentMessage = true;
                 this.drink_choice = "Espresso"; //set up for when we want to draw the selected drink
-                //this.makeDrink = true;
+                this.faceStar = true;
 
                 this.playsound(this.barista, 2);
 
@@ -399,10 +403,9 @@ export class Assignment3 extends Scene {
 
             } else if (this.showLatteDescription) {
                 this.showLatteDescription = false;
-                //this.showLatteSelection = true; //set up for the selection message
                 this.showPaymentMessage = true;
                 this.drink_choice = "Latte"; //set up for when we want to draw the selected drink
-                //this.makeDrink = true;
+                this.faceStar = true;
 
                 this.playsound(this.barista, 2);
 
@@ -484,7 +487,11 @@ export class Assignment3 extends Scene {
             if(this.showBaristaQuestion) {
                 this.showBaristaQuestion = false;
                 this.showSelectedMiffyMessage = true;
-                this.baristaIsMiffy = true;
+
+                //setup animation
+                this.showMiffyJumping = true;
+                this.miffyJumpCtr = 4;
+
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
                 this.messageIndex3 = 0;
@@ -496,7 +503,11 @@ export class Assignment3 extends Scene {
             if(this.showBaristaQuestion) {
                 this.showBaristaQuestion = false;
                 this.showSelectedCapyMessage = true;
-                this.baristaIsCapy = true;
+
+                //setup animation
+                this.showCapyJumping = true;
+                this.capyJumpCtr = 4;
+
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
                 this.messageIndex3 = 0;
@@ -574,6 +585,7 @@ export class Assignment3 extends Scene {
                 this.showGrabStarMessage = false;
                 this.showStarGrowing = false;
                 this.showStar = false;
+                this.faceStar = false;
 
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
@@ -708,8 +720,6 @@ export class Assignment3 extends Scene {
     }
     display(context, program_state) {
         let t = program_state.animation_time / 1000;
-        let t_delay = t;
-        t_delay = t_delay + 3;
 
         // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
         if (!context.scratchpad.controls) {
@@ -720,15 +730,6 @@ export class Assignment3 extends Scene {
 
         let talking_offset_and_rotation = Mat4.rotation(0.5, 0, 1, 0).times(Mat4.translation(3,1.4,15));
         let starBrewing_offset_and_rotation = Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.translation(-2,1.5,5));
-        let talking_to_Miffy_transform = Mat4.rotation(0.5, 0, 1, 0).times(Mat4.translation(3,1.4,8));
-        let talking_to_Capy_transform = Mat4.rotation(0.5, 0, 1, 0).times(Mat4.translation(5,1.4,8));
-
-        // this.playsound("bgm", 99);
-        //
-        // if (!this.bgm_playing) {
-        //     this.playsound("bgm", 99);
-        //     this.bgm_playing = true;
-        // }
 
 
         //set up basic overhead light
@@ -748,8 +749,6 @@ export class Assignment3 extends Scene {
 
         this.cloudCounter = Mat4.inverse(talking_offset_and_rotation);
         this.centralStar = Mat4.inverse(starBrewing_offset_and_rotation);
-        this.talkingToMiffy = Mat4.inverse(talking_to_Miffy_transform);
-        this.talkingToCapy = Mat4.inverse(talking_to_Capy_transform);
 
         this.display_obj(context, program_state, moon_transform, "moon");
         this.display_obj(context, program_state, cloudCounter_transform, "cloudCounter");
@@ -776,10 +775,14 @@ export class Assignment3 extends Scene {
             if (miffy_height >= 0.29) { // Use a small tolerance for approximate equality
                 this.miffyJumpCtr++;
             }
-
             miffy_base_transform = miffy_base_transform.times(Mat4.translation(0, miffy_height, 0));
 
         }
+        else if (this.faceStar && (this.barista == "miffy")) {
+            this.miffyJumpCtr = 0;
+            miffy_base_transform = miffy_base_transform.times(Mat4.rotation(-.38, 0, 1, 0));
+        }
+
 
         this.drawMiffy(context, program_state, miffy_base_transform);
 
@@ -799,6 +802,10 @@ export class Assignment3 extends Scene {
 
             capy_base_pos = capy_base_pos.times(Mat4.translation(0, capy_height, 0));
 
+        }
+        else if (this.faceStar && (this.barista == "capy")) {
+            this.capyJumpCtr = 0;
+            capy_base_pos = capy_base_pos.times(Mat4.rotation(-.74, 0, 1, 0));
         }
 
         this.drawCapy(context, program_state, capy_base_pos);
@@ -898,7 +905,7 @@ export class Assignment3 extends Scene {
 
         //User chooses Capy to be Barista
         if(this.showSelectedCapyMessage){
-            let selectedCapy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(0, 16, 0));
+            let selectedCapy_transform = Mat4.identity().times(Mat4.rotation(29 * Math.PI / 180, 0, 1, 0)).times(Mat4.scale(0.25, 0.25, 0.25)).times(Mat4.translation(15.5, 5.5, 0));
 
             if (this.messageIndex < this.selectedCapyMessage.length) {
                 this.shapes.text.set_string(this.selectedCapyMessage.substring(0, this.messageIndex + 1), context.context);
@@ -1227,9 +1234,9 @@ export class Assignment3 extends Scene {
         var star_rotation = 5 * Math.sin((1.3*t));
         var star_height = Math.abs(Math.sin(t));
 
-        //if it is in process of growing, lock once it reaches max
+        //if it is in process of growing, prompt only once it reaches max
         if(this.showStar && this.showStarGrowing){
-            star_rotation = Math.exp(0.4 * t);
+            star_rotation = (20 - (15/t)) * Math.sin((1.3*t));
             star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
             if (star_size > 0.39) {
                 this.showGrabStarMessage = true;
