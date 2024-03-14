@@ -154,7 +154,7 @@ export class Assignment3 extends Scene {
         this.makeDrink = false;
         this.drink_choice = "";
         this.magic_sound = false;
-        this.starMaxSize = false;
+        //this.starMaxSize = false;
 
         //set up static background stars
         this.starPositionsInitialized = false;
@@ -231,7 +231,6 @@ export class Assignment3 extends Scene {
         //Needed for the star animation
         this.showStarGrowing = false;
         this.showStar = true;
-        this.lockStar = false;
 
         //Needed for barista animations
         this.showMiffyJumping = false;
@@ -1228,31 +1227,21 @@ export class Assignment3 extends Scene {
         var star_rotation = 5 * Math.sin((1.3*t));
         var star_height = Math.abs(Math.sin(t));
 
-
-
         //if it is in process of growing, lock once it reaches max
-        if(this.showStar && this.showStarGrowing && !this.lockStar){
+        if(this.showStar && this.showStarGrowing){
+            star_rotation = Math.exp(0.4 * t);
             star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
-            if (star_size >0.39) {
-                this.starMaxSize = true;
+            if (star_size > 0.39) {
                 this.showGrabStarMessage = true;
-                this.lockStar = true;
+            } else {
+                this.showGrabStarMessage = false;
             }
             this.display_obj(context, program_state, star_transform, "specialStar");
         }
+        
         //if just normal idle animation, display it normally
-        else if (this.showStar && !this.showStarGrowing && !this.lockStar) {
+        else if (this.showStar && !this.showStarGrowing) {
             star_transform = star_pos.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
-            this.display_obj(context, program_state, star_transform, "specialStar");
-        }
-
-        //reached max size, lock it!
-        if(this.lockStar && this.showStar)
-        {
-            let star_locked = model_transform;
-            star_locked = star_locked.times(Mat4.translation(2,1.3,2)).times(Mat4.scale(0.4, 0.4, 0.4));
-            star_transform = star_locked.times(Mat4.rotation(star_rotation, 0, 1, 0)).times(Mat4.translation(0, star_height, 0));
-            // this.shapes.specialStar.draw(context, program_state, star_transform, this.materials.specialStar));
             this.display_obj(context, program_state, star_transform, "specialStar");
         }
 
