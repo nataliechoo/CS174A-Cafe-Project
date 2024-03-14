@@ -233,8 +233,15 @@ export class Assignment3 extends Scene {
         this.showStar = true;
         this.lockStar = false;
 
+        //Needed for barista animations
+        this.showMiffyJumping = false;
+        this.showCapyJumping = false;
+        this.capyJumpCtr = 0;
+        this.miffyJumpCtr = 0;
+
         //bgm
         this.bgm_playing = false;
+
     }
 
     playsound(barista, sec) {
@@ -301,12 +308,6 @@ export class Assignment3 extends Scene {
 
     make_control_panel() {
         //HAVE NOT YET SET UP PERSPECTIVE CHANGES
-        this.key_triggered_button("View solar system", ["Control", "0"], () => this.attached = () => this.initial_camera_location);
-        this.new_line();
-        this.key_triggered_button("Attach to planet 1", ["Control", "1"], () => this.attached = () => this.planet_1);
-        this.key_triggered_button("Attach to planet 2", ["Control", "2"], () => this.attached = () => this.planet_2);
-        this.new_line();
-        this.key_triggered_button("Attach to planet 3", ["Control", "3"], () => this.attached = () => this.planet_3);
         this.key_triggered_button("Inspect Drink/Exit Inspect", ["i"], () => {
             if (this.attached() !== this.drink) {
                 this.attached = () => this.drink;
@@ -319,8 +320,6 @@ export class Assignment3 extends Scene {
 
 
         });
-        this.new_line();
-        this.key_triggered_button("Attach to moon", ["Control", "m"], () => this.attached = () => this.moon);
         this.new_line();
         this.key_triggered_button("Next Message/Reset View", ["x"], () => {
             //set up view for when interacting with employees
@@ -453,6 +452,12 @@ export class Assignment3 extends Scene {
                     this.showLatteSelection = true;
                 }
 
+                if(this.barista === "capy"){
+                    this.showCapyJumping = true;
+                } else if(this.barista === "miffy"){
+                    this.showMiffyJumping = true;
+                }
+
                 this.messageIndex = 0;
                 this.messageIndex2 = 0;
 
@@ -462,6 +467,8 @@ export class Assignment3 extends Scene {
             }
             else if (this.showGreenTeaSelection || this.showEspressoSelection || this.showLatteSelection){
                 this.showGreenTeaSelection = this.showEspressoSelection = this.showLatteSelection = false;
+
+                this.showMiffyJumping = this.showCapyJumping = false;
 
                 this.showDrinkFinishedMessage = true;
 
@@ -763,6 +770,18 @@ export class Assignment3 extends Scene {
             .times(Mat4.scale(1.5,1.5,1.5))
             .times(Mat4.translation(2.2,0.5,-1.5));
 
+        let miffy_height = 0.3 * Math.sin(25 * t);
+
+        if(this.showMiffyJumping && this.miffyJumpCtr < 8){
+
+            if (miffy_height >= 0.29) { // Use a small tolerance for approximate equality
+                this.miffyJumpCtr++;
+            }
+
+            miffy_base_transform = miffy_base_transform.times(Mat4.translation(0, miffy_height, 0));
+
+        }
+
         this.drawMiffy(context, program_state, miffy_base_transform);
 
         //Draw Capy
@@ -770,6 +789,19 @@ export class Assignment3 extends Scene {
 
         //TO CHANGE CAPY'S LOCATION, EDIT CAPY_BASE_POS AND ALL OF HIS PIECES WILL MOVE TOGETHER
         capy_base_pos = capy_base_pos.times(Mat4.rotation(5, 0, 1, 0)).times(Mat4.translation(-2,-1,-7));
+
+        let capy_height = 0.3 * Math.sin(25 * t);
+
+        if(this.showCapyJumping && this.capyJumpCtr < 8){
+
+            if (capy_height >= 0.29) { // Use a small tolerance for approximate equality
+                this.capyJumpCtr++;
+            }
+
+            capy_base_pos = capy_base_pos.times(Mat4.translation(0, capy_height, 0));
+
+        }
+
         this.drawCapy(context, program_state, capy_base_pos);
         
         //Draw Cup
