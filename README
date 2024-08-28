@@ -1,41 +1,36 @@
-# Lunar Café: CS 174A Final Demo
+Lunar Café: CS 174A Final Demo
 
-## Concept
+Concept
 
 The Lunar Café is a mystical place that appears in the dreams of select students, offering them a magical beverage to aid in their academic journey. Our project brings this concept to life through a choose-your-story video game experience.
 
-## Project Overview
+Project Overview
 
 In this project, we:
-
 - Created several adorable Baristas for users to interact with in a game-like fashion.
 - Used magic to brew custom drinks with various effects tailored to the user's desires.
 - Implemented interactive elements that allow users to admire the baristas' talents and explore the café.
 
-## Course-Related Topics
+Course-Related Topics
 
 This project incorporated several concepts learned throughout the course:
 
-- **Transformation Matrices:** Used for both static and dynamic objects, crucial for barista animations.
-- **Mobile Eye Spaces:** Provided additional views of the drink and close-ups of the rotating star.
-- **Textures:** Applied textures, particularly on the drink surface, for enhanced visual appeal.
-- **User Interactivity:** Created interactive elements to engage users with the game.
+- Transformation Matrices: Used for both static and dynamic objects, crucial for barista animations.
+- Mobile Eye Spaces: Provided additional views of the drink and close-ups of the rotating star.
+- Textures: Applied textures, particularly on the drink surface, for enhanced visual appeal.
+- User Interactivity: Created interactive elements to engage users with the game.
 
-## Baristas and Café Design
-
+Baristas and Café Design
 - Baristas and café assets were created in Womp! and imported as individual shapes to allow for custom materials and transformations.
 - Magical stars were created and animated, serving as a central element in the café.
 
-## Features
+Features
+- Text Animation: We implemented logic to animate text, displaying it letter by letter, enhancing the visual experience.
+- Sound Integration: We added unique sounds for various interactions, including background music, barista voices, and magical effects.
+- Animations: We animated several elements, including barista selection, drink-making, and magical star transformations.
+- Textures & Animations: Textures were added to objects like the drink surface, and users can inspect the drink from a bird's-eye view.
 
-### New Features
-
-- **Text Animation:** We implemented logic to animate text, displaying it letter by letter, enhancing the visual experience.
-- **Sound Integration:** We added unique sounds for various interactions, including background music, barista voices, and magical effects.
-- **Animations:** We animated several elements, including barista selection, drink-making, and magical star transformations.
-- **Textures & Animations:** Textures were added to objects like the drink surface, and users can inspect the drink from a bird's-eye view.
-
-### User Interactivity
+User Interactivity
 
 - Key controls include:
   - `x`: Go to the next text.
@@ -48,11 +43,10 @@ This project incorporated several concepts learned throughout the course:
   - `Shift + M`: Choose Miffy as Barista.
   - `Shift + C`: Choose Capy as Barista.
 
-## Team
+Team
+- Natalie Choo
+- Nikolas Rodriguez
 
-- **Natalie Choo**
-- **Nikolas Rodriguez**
-
-## Conclusion
+Conclusion
 
 Our project, Lunar Café, combines visual aesthetics, interactive gameplay, and course-related concepts to create an engaging experience. We are excited to share this mystical café with others and hope it serves as a testament to the skills and knowledge we have acquired in this course.
